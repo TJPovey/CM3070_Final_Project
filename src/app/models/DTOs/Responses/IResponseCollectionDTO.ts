@@ -1,0 +1,10 @@
+import { IResponseDataDTO } from "./IResponseDataDTO";
+
+export interface IResponseCollectionDTO<T> extends IResponseDataDTO {
+    currentItemCount: number;
+    items: T[];
+    pageIndex: number;
+    startIndex: number;
+    totalItems: number;
+    totalPages: number;
+}
