@@ -1,8 +1,8 @@
 import { AfterViewInit, Component, ViewChild, inject } from '@angular/core';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonFab, IonFabButton, IonIcon, IonModal, IonButton, IonButtons, IonImg } from '@ionic/angular/standalone';
-import { ExploreContainerComponent } from '../explore-container/explore-container.component';
+import { ExploreContainerComponent } from '../components/explore-container/explore-container.component';
 import { Camera, Cartesian2, Cartesian3, Cesium3DTileset, CesiumWidget, CustomDataSource, DataSourceCollection, DataSourceDisplay, Entity, HeightReference, Scene, SceneMode, ScreenSpaceEventHandler, ScreenSpaceEventType, createGooglePhotorealistic3DTileset, createWorldTerrainAsync } from "@cesium/engine";
-import { PhotoCaptureService } from './../services/photo-capture.service';
+import { PhotoCaptureService } from './../services/photo-capture/photo-capture.service';
 import { camera } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 
