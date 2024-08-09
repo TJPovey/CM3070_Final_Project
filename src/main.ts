@@ -8,6 +8,8 @@ import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { environment } from './environments/environment';
 import { Ion } from '@cesium/engine';
+import { provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
+import { httpCacheInterceptor } from './app/interceptors/http-cache-interceptor';
 
 defineCustomElements(window);
 
@@ -25,5 +27,11 @@ bootstrapApplication(AppComponent, {
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
+    provideHttpClient(
+      withInterceptors([
+        httpCacheInterceptor,
+      ]),
+      withInterceptorsFromDi()
+    ),
   ],
 });

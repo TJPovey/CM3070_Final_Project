@@ -1,8 +1,9 @@
 import { IResponseCollectionDTO } from "../Responses/IResponseCollectionDTO";
 import { IResponseDTO } from "../Responses/IResponseDTO";
 
-export interface IPropertyListGetDTO extends IResponseDTO {
-    data: IResponseCollectionDTO<IPropertyListItemDTO>
+
+export interface IPropertyListGetDTO extends IResponseDTO<IResponseCollectionDTO<IPropertyListItemDTO>> {
+    
 }
 
 export interface IPropertyListItemDTO {
