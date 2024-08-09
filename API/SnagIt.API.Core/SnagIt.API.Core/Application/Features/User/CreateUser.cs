@@ -1,20 +1,8 @@
 ﻿using MediatR;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Authorization;
 using SnagIt.API.Core.Infrastructure.Repositiories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
 using SnagIt.API.Core.Application.Models.User;
 using FluentValidation;
-using SnagIt.API.Core.API;
 using SnagIt.API.Core.Domain.Aggregates.Shared;
-using Microsoft.AspNetCore.Identity;
 
 namespace SnagIt.API.Core.Application.Features.User
 {
