@@ -1,16 +1,17 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
 using Newtonsoft.Json;
-using SnagIt.API.Core.Application.Models.User;
-using System.ComponentModel.DataAnnotations;
-using SnagIt.API.Core.Application.Features.Shared.Models;
-using SnagIt.API.Core.Application.Extensions.Exceptions;
 using SnagIt.API.Core.Application.Exceptions;
+using SnagIt.API.Core.Application.Extensions.Exceptions;
+using SnagIt.API.Core.Application.Features.Shared.Models;
+using SnagIt.API.Core.Application.Models.Property;
+using SnagIt.API.Core.Application.Models.User;
 
-namespace SnagIt.API.Core.Application.Features.User.API
+namespace SnagIt.API.Core.Application.Features.Property.API
 {
-    public class UserPost
+    public class PropertyPost
     {
-        public class Command : IRequest<UserDto>
+        public class Command : IRequest<PropertyDto>
         {
             private Command(Stream data)
             {
@@ -23,7 +24,7 @@ namespace SnagIt.API.Core.Application.Features.User.API
             public Stream Data { get; }
         }
 
-        public class Handler : IRequestHandler<Command, UserDto>
+        public class Handler : IRequestHandler<Command, PropertyDto>
         {
             private readonly IMediator _mediator;
 
@@ -32,7 +33,7 @@ namespace SnagIt.API.Core.Application.Features.User.API
                 _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             }
 
-            public async Task<UserDto> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<PropertyDto> Handle(Command request, CancellationToken cancellationToken)
             {
                 if (request is null)
                 {
@@ -43,8 +44,8 @@ namespace SnagIt.API.Core.Application.Features.User.API
                 try
                 {
                     var requestBody = await new StreamReader(request.Data).ReadToEndAsync();
-                    var dto = JsonConvert.DeserializeObject<UserPostDto>(requestBody);
-                    var command = CreateUser.Command.Create(dto);
+                    var dto = JsonConvert.DeserializeObject<PropertyPostDto>(requestBody);
+                    var command = CreateProperty.Command.Create(dto);
                     await _mediator.Send(command, cancellationToken);
                 }
                 catch (Exception ex)
@@ -79,10 +80,10 @@ namespace SnagIt.API.Core.Application.Features.User.API
                     }
                 }
 
-                return new UserDto
+                return new PropertyDto
                 {
                     ApiVersion = "1.0",
-                    Method = "user.post",
+                    Method = "property.post",
                     Data = null,
                     Id = Guid.NewGuid(),
                     Error = error

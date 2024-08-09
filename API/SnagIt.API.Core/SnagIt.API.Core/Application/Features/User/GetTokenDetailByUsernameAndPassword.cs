@@ -10,6 +10,7 @@ using SnagIt.API.Core.Application.Models.User;
 using SnagIt.API.Core.Domain.Aggregates.User;
 using SnagIt.API.Core.Domain.Exceptions;
 using SnagIt.API.Core.Infrastructure.Repositiories;
+using SnagIt.API.Core.Infrastructure.Services;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -61,10 +62,14 @@ namespace SnagIt.API.Core.Application.Features.User
         public class Handler : IRequestHandler<Query, TokenDto.TokenDetailItem>
         {
             private readonly IUserRepository _userRepository;
+            private readonly IJwtSecurityTokenHandlerService _jwtSecurityTokenHandlerService;
 
-            public Handler(IUserRepository userRepository)
+            public Handler(
+                IUserRepository userRepository,
+                IJwtSecurityTokenHandlerService jwtSecurityTokenHandlerService)
             {
                 _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+                _jwtSecurityTokenHandlerService = jwtSecurityTokenHandlerService ?? throw new ArgumentNullException(nameof(jwtSecurityTokenHandlerService));
             }
 
             public async Task<TokenDto.TokenDetailItem> Handle(Query request, CancellationToken cancellationToken)
@@ -84,7 +89,8 @@ namespace SnagIt.API.Core.Application.Features.User
                     throw new AuthorisationException();
                 }
 
-                var tokenDescriptor = GenerateToken(user);
+                var tokenDescriptor = _jwtSecurityTokenHandlerService.GenerateToken(
+                    user.Id, user.UserDetail.UserName, user.UserDetail.Email);
 
                 return tokenDescriptor.ToTokenDetailtem(user);
             }
@@ -101,33 +107,6 @@ namespace SnagIt.API.Core.Application.Features.User
                     throw new DomainException($"A {nameof(SnagItUser)} multiple users with the same username exist.");
                 }
                 return user.First();
-            }
-
-            private SecurityTokenDescriptor GenerateToken(SnagItUser user)
-            {
-                var signingKey = Environment.GetEnvironmentVariable("CosmosDBConnectionString");
-                var key = Encoding.ASCII.GetBytes(signingKey);
-
-                var claims = new Dictionary<string, object>
-                    {
-                        { "userId", user.Id.ToString() },
-                        { "userName", user.UserDetail.UserName },
-                        { "email", user.UserDetail.Email }
-                    };
-
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Expires = DateTime.UtcNow.AddHours(1),
-                    SigningCredentials = new SigningCredentials(
-                        new SymmetricSecurityKey(key), 
-                        SecurityAlgorithms.HmacSha256Signature),
-                    Claims = claims,
-                    Audience = "postman",
-                    Issuer = "SnagItApp",
-                    TokenType = "Bearer"
-                };
-
-                return tokenDescriptor;
             }
         }
     }
