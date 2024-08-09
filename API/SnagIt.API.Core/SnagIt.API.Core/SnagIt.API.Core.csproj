@@ -42,6 +42,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Aggregates\" />
-    <Folder Include="Infrastructure\Middleware\" />
   </ItemGroup>
 </Project>
