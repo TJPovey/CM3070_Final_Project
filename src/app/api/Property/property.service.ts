@@ -9,17 +9,19 @@ import { GUID } from 'src/app/helpers/Guid';
 })
 export class PropertyService {
 
+  private _mockPropertyList = [...mockPropertyList];
+
 
   getProperties(offset: number = 0, limit: number = 10): Observable<IPropertyListGetDTO> {
-    // Calculate start and end indices for pagination
+    /// Calculate start and end indices for pagination
     const startIndex = offset;
     const endIndex = startIndex + limit;
 
     // Get the paginated items
-    const paginatedItems = mockPropertyList.slice(startIndex, endIndex);
+    const paginatedItems = this._mockPropertyList.slice(startIndex, endIndex);
 
     // Calculate total pages
-    const totalPages = Math.ceil(mockPropertyList.length / limit);
+    const totalPages = Math.ceil(this._mockPropertyList.length / limit);
 
     // Create the response DTO
     const response: IPropertyListGetDTO = {
