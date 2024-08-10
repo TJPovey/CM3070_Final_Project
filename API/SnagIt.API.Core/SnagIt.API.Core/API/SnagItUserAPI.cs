@@ -7,11 +7,11 @@ using SnagIt.API.Core.Infrastructure.Extensions;
 
 namespace SnagIt.API.Core.API
 {
-    public class SnagItUser
+    public class SnagItUserAPI
     {
         private readonly IMediator _mediator;
 
-        public SnagItUser(IMediator mediator)
+        public SnagItUserAPI(IMediator mediator)
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         }
