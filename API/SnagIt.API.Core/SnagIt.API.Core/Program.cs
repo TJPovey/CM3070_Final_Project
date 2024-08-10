@@ -47,7 +47,9 @@ var host = new HostBuilder()
             .AddLogging()
             .AddSingleton<IJwtSecurityTokenHandlerService, JwtSecurityTokenHandlerService>()
             .AddSingleton<IManagementCosmosClient, ManagementCosmosClient>()
-            .AddSingleton<IUserRepository, UserRepository>();
+            .AddSingleton<IUserCosmosClient, UserCosmosClient>()
+            .AddSingleton<IUserRepository, UserRepository>()
+            .AddSingleton<IPropertyRepository, PropertyRepository>();
 
         services
             .AddAuthentication(options =>

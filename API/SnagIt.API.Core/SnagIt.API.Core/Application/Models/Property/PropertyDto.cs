@@ -1,7 +1,7 @@
 ﻿using SnagIt.API.Core.Application.Features.Shared.Models;
 
 
-namespace SnagIt.API.Core.Application.Models.User
+namespace SnagIt.API.Core.Application.Models.Property
 {
     public class PropertyDto : Response
     {
@@ -10,7 +10,6 @@ namespace SnagIt.API.Core.Application.Models.User
         public class PropertyDetailItem : ResponseItem<PropertyDetail>
         {
             public override PropertyDetail Item { get; set; }
-            public List<UserAssignment> UserAssignments { get; set; }
         }
 
         public class PropertyDetail
@@ -18,6 +17,7 @@ namespace SnagIt.API.Core.Application.Models.User
             public string Id { get; set; }
             public string PropertyName { get; set; }
             public string ReportTitle { get; set; }
+            public List<UserAssignment> UserAssignments { get; set; }
         }
 
         public class UserAssignment
@@ -29,7 +29,7 @@ namespace SnagIt.API.Core.Application.Models.User
 
         public class UserRole
         {
-            public Guid Id { get; set; }
+            public string Id { get; set; }
             public string Name { get; set; }
         }
     }
