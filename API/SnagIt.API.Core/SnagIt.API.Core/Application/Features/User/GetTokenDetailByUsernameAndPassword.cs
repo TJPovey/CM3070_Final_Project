@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using SnagIt.API.Core.Application.Exceptions;
-using SnagIt.API.Core.Application.Extensions.Mapping;
+using SnagIt.API.Core.Application.Extensions.Mapping.Token;
 using SnagIt.API.Core.Application.Models.User;
 using SnagIt.API.Core.Domain.Aggregates.User;
 using SnagIt.API.Core.Domain.Exceptions;
@@ -97,7 +97,7 @@ namespace SnagIt.API.Core.Application.Features.User
 
             private async Task<SnagItUser> GetUser(Query request, CancellationToken cancellationToken)
             {
-                var user = await _userRepository.GetAll(request.Data.Username, cancellationToken);
+                var user = await _userRepository.GetAllUsersWithUsername(request.Data.Username, cancellationToken);
                 if (user != null && user?.Count == 0)
                 {
                     throw new ArgumentNullException($"A {nameof(SnagItUser)} user with username [${request.Data.Username}] could not be found.");

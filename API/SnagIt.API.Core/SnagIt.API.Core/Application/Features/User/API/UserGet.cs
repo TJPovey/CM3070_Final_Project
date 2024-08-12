@@ -1,36 +1,37 @@
-﻿using FluentValidation;
-using MediatR;
-using Newtonsoft.Json;
+﻿using MediatR;
 using SnagIt.API.Core.Application.Exceptions;
 using SnagIt.API.Core.Application.Extensions.Exceptions;
+using FluentValidation;
 using SnagIt.API.Core.Application.Features.Shared.Models;
-using SnagIt.API.Core.Application.Models.Property;
-using SnagIt.API.Core.Domain.Aggregates.Shared;
+using SnagIt.API.Core.Application.Models.User;
+using SnagIt.API.Core.Application.Features.User;
+
 
 namespace SnagIt.API.Core.Application.Features.Property.API
 {
-    public class PropertyPost
+    public class UserGet
     {
-        public class Command : IRequest<PropertyDto>
+        public class Query : IRequest<UserDto>
         {
-            private Command(Stream data, Guid userId, string userName)
+            private Query(
+                string username,
+                Guid userId)
             {
-                Data = data;
+                Username = username;
                 UserId = userId;
-                UserName = userName;
             }
 
-            public static Command Create(Stream data, Guid userId, string userName)
-                => new Command(data, userId, userName);
+            public static Query Create(
+                string username,
+                Guid userId)
+                => new Query(username, userId);
 
-            public Stream Data { get; }
+            public string Username { get; }
 
             public Guid UserId { get; }
-
-            public string UserName { get; }
         }
 
-        public class Handler : IRequestHandler<Command, PropertyDto>
+        public class Handler : IRequestHandler<Query, UserDto>
         {
             private readonly IMediator _mediator;
 
@@ -39,26 +40,24 @@ namespace SnagIt.API.Core.Application.Features.Property.API
                 _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             }
 
-            public async Task<PropertyDto> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<UserDto> Handle(Query request, CancellationToken cancellationToken)
             {
-                if (request is null)
-                {
-                    throw new ArgumentNullException(nameof(request));
-                }
-
+                UserDto.UserDetailItem data = null;
                 ResponseError error = null;
                 try
                 {
-                    var requestBody = await new StreamReader(request.Data).ReadToEndAsync();
-                    var dto = JsonConvert.DeserializeObject<PropertyPostDto>(requestBody);
-                    var command = CreateProperty.Command.Create(dto, request.UserId, request.UserName);
-                    await _mediator.Send(command, cancellationToken);
+                    var query = GetUserById.Query.Create(
+                        request.Username,
+                        request.UserId);
+                    var result = await _mediator.Send(query, cancellationToken);
+
+                    data = result;
                 }
                 catch (Exception ex)
                 {
-                    if (ex is ValidationException
-                        || ex is ArgumentException
-                        || ex is JsonException)
+                    if (ex is ValidationException || 
+                        ex is ArgumentException || 
+                        ex is FormatException)
                     {
                         error = new ResponseError
                         {
@@ -86,14 +85,16 @@ namespace SnagIt.API.Core.Application.Features.Property.API
                     }
                 }
 
-                return new PropertyDto
+                var response = new UserDto()
                 {
                     ApiVersion = "1.0",
-                    Method = "property.post",
-                    Data = null,
                     Id = Guid.NewGuid(),
+                    Method = "user.get",
+                    Data = data,
                     Error = error
                 };
+
+                return response;
             }
         }
     }

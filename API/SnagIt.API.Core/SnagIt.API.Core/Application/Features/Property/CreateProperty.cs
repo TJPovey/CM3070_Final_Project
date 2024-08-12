@@ -1,16 +1,11 @@
 ﻿using FluentValidation;
 using MediatR;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights;
-using SnagIt.API.Core.Application.Authorisation;
 using SnagIt.API.Core.Application.Models.Property;
-using SnagIt.API.Core.Application.Models.User;
+using SnagIt.API.Core.Domain.Aggregates.Property;
+using SnagIt.API.Core.Domain.Aggregates.Shared;
+using SnagIt.API.Core.Domain.Aggregates.User;
 using SnagIt.API.Core.Infrastructure.Repositiories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace SnagIt.API.Core.Application.Features.Property
 {
@@ -18,15 +13,21 @@ namespace SnagIt.API.Core.Application.Features.Property
     {
         public class Command : IRequest
         {
-            private Command(PropertyPostDto data)
+            private Command(PropertyPostDto data, Guid userId, string userName)
             {
                 Data = data;
+                UserId = userId;
+                UserName = userName;
             }
 
-            public static Command Create(PropertyPostDto data)
-                => new Command(data);
+            public static Command Create(PropertyPostDto data, Guid userId, string userName)
+                => new Command(data, userId, userName);
 
             public PropertyPostDto Data { get; }
+
+            public Guid UserId { get; }
+
+            public string UserName { get; }
         }
 
         public class Validator : AbstractValidator<Command>
@@ -36,6 +37,12 @@ namespace SnagIt.API.Core.Application.Features.Property
                 RuleFor(query => query.Data)
                     .NotNull()
                     .SetValidator(new PropertyPostDtoValidator());
+
+                RuleFor(query => query.UserId)
+                    .NotEmpty();
+
+                RuleFor(query => query.UserName)
+                    .NotEmpty();
             }
 
             private class PropertyPostDtoValidator : AbstractValidator<PropertyPostDto>
@@ -54,13 +61,16 @@ namespace SnagIt.API.Core.Application.Features.Property
         public class Handler : IRequestHandler<Command>
         {
             private readonly IMediator _mediator;
+            private readonly IPropertyRepository _propertyRepository;
             private readonly IUserRepository _userRepository;
 
             public Handler(
                 IMediator mediator,
+                IPropertyRepository propertyRepository,
                 IUserRepository userRepository)
             {
                 _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+                _propertyRepository = propertyRepository ?? throw new ArgumentNullException(nameof(propertyRepository));
                 _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             }
 
@@ -71,38 +81,36 @@ namespace SnagIt.API.Core.Application.Features.Property
                     throw new ArgumentNullException(nameof(request));
                 }
 
-                //await VerifyUserDoesNotExist(request, cancellationToken);
+                var user = await VerifyUserExists(request, cancellationToken);
 
-                //await Create(request, cancellationToken);
+                await Create(request, user, cancellationToken);
             }
 
-            //private async Task VerifyUserDoesNotExist(Command request, CancellationToken cancellationToken)
-            //{
-            //    var user = await _userRepository.GetAll(request.Data.Username, cancellationToken);
-            //    if (user?.Count > 0)
-            //    {
-            //        throw new ArgumentException($"A {nameof(Domain.Aggregates.User.SnagItUser)} entity already exists.");
-            //    }
-            //}
+            private async Task Create(
+                Command request,
+                SnagItUser user,
+                CancellationToken cancellationToken)
+            {
+                var propertyDetail = PropertyDetail.Create(
+                    request.Data.PropertyName,
+                    request.Data.ReportTitle);
 
-            //private async Task Create(
-            //    Command request,
-            //    CancellationToken cancellationToken)
-            //{
-            //    var userDetail = UserDetail.Create(
-            //        request.Data.FirstName,
-            //        request.Data.LastName,
-            //        request.Data.Username,
-            //        request.Data.Email);
+                var propertyEntity = SnagItProperty
+                    .Create(propertyDetail, UserId.Create(user.Id, user.UserDetail.UserName));
 
-            //    var snagItEntity = Domain.Aggregates.User.SnagItUser
-            //        .Create(
-            //            Guid.NewGuid(),
-            //            request.Data.Password,
-            //            userDetail);
+                await _propertyRepository.AddProperty(propertyEntity, user.Id, cancellationToken);
+            }
 
-            //    await _userRepository.Add(snagItEntity, cancellationToken);
-            //}
+            private async Task<SnagItUser> VerifyUserExists(Command request, CancellationToken cancellationToken)
+            {
+                var user = await _userRepository.GetUser(request.UserId, request.UserName, cancellationToken);
+                if (user is null)
+                {
+                    throw new ArgumentException($"A {nameof(SnagItUser)} entity does not exists.");
+                }
+
+                return user;
+            }
         }
     }
 }
