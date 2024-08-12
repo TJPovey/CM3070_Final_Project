@@ -1,4 +1,5 @@
 ﻿using SnagIt.API.Core.Application.Features.Shared.Models;
+using SnagIt.API.Core.Application.Models.Shared;
 
 
 namespace SnagIt.API.Core.Application.Models.Property
@@ -17,6 +18,7 @@ namespace SnagIt.API.Core.Application.Models.Property
             public string Id { get; set; }
             public string PropertyName { get; set; }
             public string ReportTitle { get; set; }
+            public LocationGetDto Location { get; set; }
             public List<UserAssignment> UserAssignments { get; set; }
         }
 

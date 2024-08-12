@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
+using SnagIt.API.Core.Application.Features.Shared.Validators;
 using SnagIt.API.Core.Application.Models.Property;
 using SnagIt.API.Core.Domain.Aggregates.Property;
 using SnagIt.API.Core.Domain.Aggregates.Shared;
@@ -17,7 +18,7 @@ namespace SnagIt.API.Core.Application.Features.Property
             {
                 Data = data;
                 UserId = userId;
-                UserName = userName;
+                Username = userName;
             }
 
             public static Command Create(PropertyPostDto data, Guid userId, string userName)
@@ -27,7 +28,7 @@ namespace SnagIt.API.Core.Application.Features.Property
 
             public Guid UserId { get; }
 
-            public string UserName { get; }
+            public string Username { get; }
         }
 
         public class Validator : AbstractValidator<Command>
@@ -41,7 +42,7 @@ namespace SnagIt.API.Core.Application.Features.Property
                 RuleFor(query => query.UserId)
                     .NotEmpty();
 
-                RuleFor(query => query.UserName)
+                RuleFor(query => query.Username)
                     .NotEmpty();
             }
 
@@ -54,6 +55,10 @@ namespace SnagIt.API.Core.Application.Features.Property
 
                     RuleFor(data => data.PropertyName)
                         .NotEmpty();
+
+                    RuleFor(data => data.Location)
+                        .NotNull()
+                        .SetValidator(new LocationPostValidator());
                 }
             }
         }
@@ -91,19 +96,25 @@ namespace SnagIt.API.Core.Application.Features.Property
                 SnagItUser user,
                 CancellationToken cancellationToken)
             {
+                var locationDetail = LocationDetail.FromDegrees(
+                    request.Data.Location.Latitude,
+                    request.Data.Location.Longitude);
+
                 var propertyDetail = PropertyDetail.Create(
                     request.Data.PropertyName,
-                    request.Data.ReportTitle);
+                    request.Data.ReportTitle,
+                    locationDetail);
 
                 var propertyEntity = SnagItProperty
-                    .Create(propertyDetail, UserId.Create(user.Id, user.UserDetail.UserName));
+                    .Create(propertyDetail,
+                            UserId.Create(user.Id, user.UserDetail.UserName));
 
                 await _propertyRepository.AddProperty(propertyEntity, user.Id, cancellationToken);
             }
 
             private async Task<SnagItUser> VerifyUserExists(Command request, CancellationToken cancellationToken)
             {
-                var user = await _userRepository.GetUser(request.UserId, request.UserName, cancellationToken);
+                var user = await _userRepository.GetUser(request.UserId, request.Username, cancellationToken);
                 if (user is null)
                 {
                     throw new ArgumentException($"A {nameof(SnagItUser)} entity does not exists.");

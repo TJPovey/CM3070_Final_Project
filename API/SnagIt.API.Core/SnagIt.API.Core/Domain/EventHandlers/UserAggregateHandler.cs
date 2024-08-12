@@ -38,7 +38,7 @@ namespace SnagIt.API.Core.Domain.EventHandlers
         {
             if (notification is null)
             {
-                throw new ArgumentException($"A {nameof(PropertyUserAssignedDomainEvent)} instance for {nameof(notification)} was not supplied.");
+                throw new ArgumentException($"A {nameof(PropertyCreatedDomainEvent)} instance for {nameof(notification)} was not supplied.");
             }
 
             var targetUser = await _userRepository.GetUser(
