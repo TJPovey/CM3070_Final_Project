@@ -3,37 +3,45 @@ using MediatR;
 using SnagIt.API.Core.Application.Authorisation;
 using SnagIt.API.Core.Infrastructure.Repositiories;
 using SnagIt.API.Core.Domain.Aggregates.Property;
-using SnagIt.API.Core.Application.Models.Property;
 using SnagIt.API.Core.Application.Extensions.Mapping.Property;
+using SnagIt.API.Core.Application.Models.Task;
+using SnagIt.API.Core.Application.Extensions.Mapping.Tasks;
+using SnagIt.API.Core.Domain.Aggregates.SnagItTask;
 
 
-namespace SnagIt.API.Core.Application.Features.Property
+namespace SnagIt.API.Core.Application.Features.SnagTask
 {
-    public class GetPropertyById
+    public class GetTaskById
     {
-        public class Query : IRequest<PropertyDto.PropertyDetailItem>
+        public class Query : IRequest<TaskDto.TaskDetailItem>
         {
             private Query(
                 string username,
                 Guid userId,
-                Guid propertyId)
+                Guid propertyId,
+                Guid propertyOwnerId,
+                Guid taskId)
             {
                 Username = username;
                 UserId = userId;
                 PropertyId = propertyId;
+                PropertyOwnerId = propertyOwnerId;
+                TaskId = taskId;
             }
 
             public static Query Create(
                 string username,
                 Guid userId,
-                Guid propertyId)
-                => new Query(username, userId, propertyId);
+                Guid propertyId,
+                Guid propertyOwnerId,
+                Guid taskId)
+                => new Query(username, userId, propertyId, propertyOwnerId, taskId);
 
             public string Username { get; }
-
             public Guid UserId { get; }
-
             public Guid PropertyId { get; }
+            public Guid PropertyOwnerId { get; }
+            public Guid TaskId { get; }
         }
 
         public class Validator : AbstractValidator<Query>
@@ -47,6 +55,12 @@ namespace SnagIt.API.Core.Application.Features.Property
                     .NotEmpty();
 
                 RuleFor(query => query.PropertyId)
+                    .NotEmpty();
+
+                RuleFor(query => query.PropertyOwnerId)
+                    .NotEmpty();
+
+                RuleFor(query => query.TaskId)
                     .NotEmpty();
             }
         }
@@ -77,7 +91,7 @@ namespace SnagIt.API.Core.Application.Features.Property
             }
         }
 
-        public class Handler : IRequestHandler<Query, PropertyDto.PropertyDetailItem>
+        public class Handler : IRequestHandler<Query, TaskDto.TaskDetailItem>
         {
             private readonly IPropertyRepository _propertyRepository;
 
@@ -86,22 +100,22 @@ namespace SnagIt.API.Core.Application.Features.Property
                 _propertyRepository = propertyRepository ?? throw new ArgumentNullException(nameof(propertyRepository));
             }
 
-            public async Task<PropertyDto.PropertyDetailItem> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<TaskDto.TaskDetailItem> Handle(Query request, CancellationToken cancellationToken)
             {
                 if (request is null)
                 {
                     throw new ArgumentNullException(nameof(request));
                 }
 
-                var data = await _propertyRepository.GetProperty(request.PropertyId, request.UserId, cancellationToken);
+                var data = await _propertyRepository.GetTask(request.TaskId, request.PropertyOwnerId, cancellationToken);
                 if (data is null)
                 {
                     throw new ArgumentException(
-                        $"A {nameof(SnagItProperty)} projection could not be found " +
-                        $"for {nameof(GetPropertyById)} with propertyId: {request.PropertyId}");
+                        $"A {nameof(SnagItTask)} projection could not be found " +
+                        $"for {nameof(GetTaskById)} with taskId: {request.TaskId}");
                 }
 
-                var result = data.ToPropertyDetailItem();
+                var result = data.ToTaskDetailItem();
 
                 return result;
             }

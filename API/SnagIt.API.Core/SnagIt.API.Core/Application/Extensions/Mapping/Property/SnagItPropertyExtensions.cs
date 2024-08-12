@@ -1,4 +1,5 @@
-﻿using SnagIt.API.Core.Domain.Aggregates.Property;
+﻿using SnagIt.API.Core.Application.Models.Shared;
+using SnagIt.API.Core.Domain.Aggregates.Property;
 using static SnagIt.API.Core.Application.Models.Property.PropertyDto;
 
 
@@ -31,6 +32,11 @@ public static class SnagItPropertyExtensions
                 Id = snagItProperty.Id.ToString(),
                 PropertyName = snagItProperty.PropertyDetail.PropertyName,
                 ReportTitle = snagItProperty.PropertyDetail.ReportTitle,
+                Location = new LocationGetDto
+                {
+                    Latitude = snagItProperty.PropertyDetail.LocationDetail.Latitude,
+                    Longitude = snagItProperty.PropertyDetail.LocationDetail.Longitude
+                },
                 UserAssignments = assignedProperties
             },
         };

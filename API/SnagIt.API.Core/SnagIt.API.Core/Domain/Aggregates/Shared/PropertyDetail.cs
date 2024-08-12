@@ -7,13 +7,20 @@ namespace SnagIt.API.Core.Domain.Aggregates.Shared
     public class PropertyDetail : ValueObject
     {
         [JsonConstructor]
-        private PropertyDetail(string propertyName, string reportTitle)
+        private PropertyDetail(
+            string propertyName, 
+            string reportTitle,
+            LocationDetail locationDetail)
         {
             PropertyName = propertyName;
             ReportTitle = reportTitle;
+            LocationDetail = locationDetail;
         }
 
-        public static PropertyDetail Create(string propertyName, string reportTitle)
+        public static PropertyDetail Create(
+            string propertyName, 
+            string reportTitle,
+            LocationDetail locationDetail)
         {
             if (string.IsNullOrWhiteSpace(propertyName))
             {
@@ -25,7 +32,12 @@ namespace SnagIt.API.Core.Domain.Aggregates.Shared
                 throw new DomainException($"A value for {nameof(reportTitle)} was not supplied.");
             }
 
-            return new PropertyDetail(propertyName, reportTitle);
+            if (locationDetail is null)
+            {
+                throw new DomainException($"A value for {nameof(locationDetail)} was not supplied.");
+            }
+
+            return new PropertyDetail(propertyName, reportTitle, locationDetail);
         }
 
         protected override IEnumerable<object> GetAtomicValues()
@@ -36,5 +48,6 @@ namespace SnagIt.API.Core.Domain.Aggregates.Shared
 
         public string PropertyName { get; }
         public string ReportTitle { get; }
+        public LocationDetail LocationDetail { get; }
     }
 }
