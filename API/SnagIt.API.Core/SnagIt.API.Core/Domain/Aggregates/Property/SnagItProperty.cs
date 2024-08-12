@@ -14,37 +14,48 @@ namespace SnagIt.API.Core.Domain.Aggregates.Property
     {
         public static string PartitionKeyPrefix = "property-";
         private readonly List<UserAssignment> _assignedUsers;
+        private readonly List<TaskAssignment> _assignedTasks;
 
         [Obsolete("This only exists for JSON deserialisation. Do not use it for any other purpose.")]
         [JsonConstructor]
         private SnagItProperty(
             Guid id,
+            UserId ownerId,
             string partitionKey,
             string type,
             string passwordHash,
             PropertyDetail propertyDetail,
-            List<UserAssignment> assignedUsers)
+            List<UserAssignment> assignedUsers,
+            List<TaskAssignment> assignedTasks)
         {
             Id = id;
+            OwnerId = ownerId;
             PartitionKey = partitionKey;
             Type = type;
             PropertyDetail = propertyDetail;
             _assignedUsers = assignedUsers;
+            _assignedTasks = assignedTasks;
         }
 
-        private SnagItProperty(Guid id, PropertyDetail propertyDetail, UserId userId)
+        private SnagItProperty(
+            Guid id, 
+            PropertyDetail propertyDetail, 
+            UserId userId)
         {
             Id = !id.Equals(default) ? id : throw new DomainException(nameof(id));
             PartitionKey = GeneratePartitionKey(Id);
             Type = nameof(SnagItProperty);
             PropertyDetail = propertyDetail ?? throw new DomainException(nameof(propertyDetail));
+            OwnerId = userId;
             _assignedUsers = new List<UserAssignment>()
             {
                 UserAssignment.Create(userId, UserRole.Owner)
             };
+            _assignedTasks = new List<TaskAssignment>();
         }
 
-        public static SnagItProperty Create(PropertyDetail propertyDetail, UserId userId)
+        public static SnagItProperty Create(
+            PropertyDetail propertyDetail, UserId userId)
         {
             var property = new SnagItProperty(Guid.NewGuid(), propertyDetail, userId);
 
@@ -58,7 +69,7 @@ namespace SnagIt.API.Core.Domain.Aggregates.Property
         public static string GeneratePartitionKey(Guid propertyId)
             => $"{PartitionKeyPrefix}{propertyId}";
 
-        private void AssignUserToPropertyWithRole(UserId userId, UserRole userRole)
+        public void AssignUserToPropertyWithRole(UserId userId, UserRole userRole)
         {
             if (userId is null)
             {
@@ -95,13 +106,35 @@ namespace SnagIt.API.Core.Domain.Aggregates.Property
             AddDomainEvent(@event);
         }
 
+        public void AssignTaskToProperty(TaskId taskId)
+        {
+            if (taskId is null)
+            {
+                throw new DomainException($"A {nameof(TaskId)} instance for {nameof(taskId)} was not supplied.");
+            }
+
+            if (_assignedTasks.Any(x => x.TaskId.Id.Equals(taskId.Id)))
+            {
+                // Task has already been assigned to target property.
+                return;
+            }
+
+            var taskAssignment = TaskAssignment.Create(taskId);
+
+            _assignedTasks.Add(taskAssignment);
+        }
+
         public void RemoveFromProperty(PropertyId property)
         {
             //
         }
 
+        public UserId OwnerId { get; private set; }
+
         public PropertyDetail PropertyDetail { get; private set; }
 
         public ReadOnlyCollection<UserAssignment> AssignedUsers => _assignedUsers.AsReadOnly();
+
+        public ReadOnlyCollection<TaskAssignment> AssignedTasks => _assignedTasks.AsReadOnly();
     }
 }

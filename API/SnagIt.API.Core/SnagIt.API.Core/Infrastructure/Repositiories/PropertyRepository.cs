@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using SnagIt.API.Core.Domain.Aggregates.Property;
+using SnagIt.API.Core.Domain.Aggregates.SnagItTask;
 using SnagIt.API.Core.Domain.SeedWork;
 using SnagIt.API.Core.Infrastructure.Repositiories.Cosmos.Clients;
 
@@ -13,6 +14,10 @@ namespace SnagIt.API.Core.Infrastructure.Repositiories
         Task UpdateProperty(SnagItProperty property, Guid userId, CancellationToken cancellationToken = default);
 
         Task<SnagItProperty> GetProperty(Guid id, Guid userId, CancellationToken cancellationToken = default);
+
+        Task AddTask(SnagItTask task, Guid userId, CancellationToken cancellationToken = default);
+
+        Task<SnagItTask> GetTask(Guid id, Guid userId, CancellationToken cancellationToken = default);
     }
 
     public class PropertyRepository : IPropertyRepository
@@ -87,6 +92,50 @@ namespace SnagIt.API.Core.Infrastructure.Repositiories
                 cancellationToken);
 
             await PublishDomainEvents(property);
+        }
+
+        public async Task AddTask(SnagItTask task, Guid userId, CancellationToken cancellationToken = default)
+        {
+            if (task == null)
+            {
+                throw new ArgumentNullException(nameof(task));
+            }
+
+            if (userId.Equals(default))
+            {
+                throw new ArgumentException($"The value provided for {nameof(userId)} is a default value.");
+            }
+
+            await _userCosmosClient.Create<SnagItTask>(
+                userId,
+                task,
+                task.PartitionKey,
+                cancellationToken);
+
+
+            await PublishDomainEvents(task);
+        }
+
+        public async Task<SnagItTask> GetTask(
+            Guid id, 
+            Guid userId, 
+            CancellationToken cancellationToken = default)
+        {
+            if (id.Equals(default))
+            {
+                throw new ArgumentException($"The value provided for {nameof(id)} is a default value.");
+            }
+
+            if (userId.Equals(default))
+            {
+                throw new ArgumentException($"The value provided for {nameof(userId)} is a default value.");
+            }
+
+            return await _userCosmosClient.Get<SnagItTask>(
+                userId,
+                id.ToString(),
+                SnagItTask.GeneratePartitionKey(id),
+                cancellationToken);
         }
 
         private async Task PublishDomainEvents(Entity property)
