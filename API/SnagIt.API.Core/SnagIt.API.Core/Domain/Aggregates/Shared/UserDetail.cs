@@ -10,7 +10,7 @@ namespace SnagIt.API.Core.Domain.Aggregates.Shared
         [JsonConstructor]
         private UserDetail(string firstName, string lastName, string fullName, string userName, string email)
         {
-            FullName = firstName;
+            FullName = fullName;
             FirstName = firstName;
             LastName = lastName;
             UserName = userName;
@@ -21,7 +21,7 @@ namespace SnagIt.API.Core.Domain.Aggregates.Shared
         {
             FirstName = !string.IsNullOrWhiteSpace(firstName) ? firstName.Trim() : throw new DomainException($"A value for {nameof(firstName)} was not supplied.");
             LastName = !string.IsNullOrWhiteSpace(lastName) ? lastName.Trim() : throw new DomainException($"A value for {nameof(lastName)} was not supplied.");
-            UserName = !string.IsNullOrWhiteSpace(userName) ? userName.Trim() : throw new DomainException($"A value for {nameof(userName)} was not supplied.");
+            UserName = !string.IsNullOrWhiteSpace(userName) ? userName.Trim().ToLowerInvariant() : throw new DomainException($"A value for {nameof(userName)} was not supplied.");
             Email = !string.IsNullOrWhiteSpace(email) ? email.Trim() : throw new DomainException($"A value for {nameof(email)} was not supplied.");
             FullName = $"{LastName}, {FirstName}";
         }

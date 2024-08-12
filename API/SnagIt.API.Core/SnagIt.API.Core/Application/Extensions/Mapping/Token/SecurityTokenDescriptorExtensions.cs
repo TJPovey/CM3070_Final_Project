@@ -3,7 +3,7 @@ using SnagIt.API.Core.Domain.Aggregates.User;
 using System.IdentityModel.Tokens.Jwt;
 using static SnagIt.API.Core.Application.Models.User.TokenDto;
 
-namespace SnagIt.API.Core.Application.Extensions.Mapping
+namespace SnagIt.API.Core.Application.Extensions.Mapping.Token
 {
     public static class SecurityTokenDescriptorExtensions
     {

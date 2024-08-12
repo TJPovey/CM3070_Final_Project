@@ -1,11 +1,10 @@
-﻿using Azure.Core;
-using MediatR;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 using SnagIt.API.Core.Domain.Aggregates.Shared;
 using SnagIt.API.Core.Domain.Events.UserAggregate;
 using SnagIt.API.Core.Domain.Exceptions;
 using SnagIt.API.Core.Domain.SeedWork;
+using System.Collections.ObjectModel;
 
 
 namespace SnagIt.API.Core.Domain.Aggregates.User
@@ -13,8 +12,7 @@ namespace SnagIt.API.Core.Domain.Aggregates.User
     public sealed class SnagItUser : Entity, IAggregateRoot
     {
         public static string PartitionKeyPrefix = "user-";
-
-        private List<PropertyAssignment> _assignedProperties;
+        private readonly List<PropertyAssignment> _assignedProperties;
 
         [Obsolete("This only exists for JSON deserialisation. Do not use it for any other purpose.")]
         [JsonConstructor]
@@ -43,9 +41,9 @@ namespace SnagIt.API.Core.Domain.Aggregates.User
             _assignedProperties = new List<PropertyAssignment>();
         }
 
-        public static SnagItUser Create(Guid id, string password, UserDetail userDetail)
+        public static SnagItUser Create(string password, UserDetail userDetail)
         {
-            var user = new SnagItUser(id, userDetail);
+            var user = new SnagItUser(Guid.NewGuid(), userDetail);
 
             var passwordHasher = new PasswordHasher<SnagItUser>();
             var passwordHash = passwordHasher.HashPassword(user, password);
@@ -62,7 +60,7 @@ namespace SnagIt.API.Core.Domain.Aggregates.User
             => $"{PartitionKeyPrefix}{username}";
 
 
-        private void AssignToPropertyWithRole(PropertyId propertyId, UserRole userRole)
+        public void AssignProperty(PropertyId propertyId, UserRole userRole)
         {
             if (propertyId is null)
             {
@@ -90,12 +88,6 @@ namespace SnagIt.API.Core.Domain.Aggregates.User
             var propertyAssignment = PropertyAssignment.Create(propertyId, userRole);
 
             _assignedProperties.Add(propertyAssignment);
-
-            var @event = UserPropertyAssignedDomainEvent.Create(
-                    this,
-                    propertyAssignment);
-
-            AddDomainEvent(@event);
         }
 
         public void RemoveFromProperty(PropertyId property)
@@ -113,19 +105,13 @@ namespace SnagIt.API.Core.Domain.Aggregates.User
             }
 
             _assignedProperties.Remove(existingOrganisationAssignment);
-
-            //var @event = UserOrganisationRemovedDomainEvent.Create(
-            //    UserOrganisationRemovedDomainEvent.OrganisationIdInternal.Create(existingOrganisationAssignment.Property.Id),
-            //    UserOrganisationRemovedDomainEvent.UserIdInternal.Create(Id));
-
-            //AddDomainEvent(@event);
         }
 
         public UserDetail UserDetail { get; private set; }
 
         public string PasswordHash { get; private set; }
 
-        public IReadOnlyCollection<PropertyAssignment> AssignedProperties => _assignedProperties.AsReadOnly();
+        public ReadOnlyCollection<PropertyAssignment> AssignedProperties => _assignedProperties.AsReadOnly();
     }
 
 }

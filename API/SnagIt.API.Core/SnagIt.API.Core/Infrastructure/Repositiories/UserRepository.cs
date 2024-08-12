@@ -3,115 +3,91 @@ using Microsoft.Azure.Cosmos;
 using SnagIt.API.Core.Domain.Aggregates.User;
 using SnagIt.API.Core.Domain.SeedWork;
 using SnagIt.API.Core.Infrastructure.Repositiories.Cosmos.Clients;
-using System.Net;
 
 
 namespace SnagIt.API.Core.Infrastructure.Repositiories
 {
     public interface IUserRepository : IRepository<SnagItUser>
     {
-        Task Add(SnagItUser user, CancellationToken cancellationToken = default);
+        Task AddUser(SnagItUser user, CancellationToken cancellationToken = default);
 
-        Task Update(SnagItUser user, CancellationToken cancellationToken = default);
+        Task UpdateUser(SnagItUser user, CancellationToken cancellationToken = default);
 
-        Task<SnagItUser> Get(Guid id, string username, CancellationToken cancellationToken = default);
+        Task<SnagItUser> GetUser(Guid id, string username, CancellationToken cancellationToken = default);
 
-        Task<List<SnagItUser>> GetAll(string username, CancellationToken cancellationToken = default);
+        Task<List<SnagItUser>> GetAllUsersWithUsername(string username, CancellationToken cancellationToken = default);
     }
 
     public class UserRepository : IUserRepository
     {
         private readonly IMediator _mediator;
-        private readonly IManagementCosmosClient _cosmosClient;
+        private readonly IManagementCosmosClient _managementCosmosClient;
+        private readonly IUserCosmosClient _userCosmosClient;
 
-        public UserRepository(IMediator mediator, IManagementCosmosClient cosmosClient)
+        public UserRepository(
+            IMediator mediator, 
+            IManagementCosmosClient managementCosmosClient,
+            IUserCosmosClient userCosmosClient)
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-            _cosmosClient = cosmosClient ?? throw new ArgumentNullException(nameof(cosmosClient));
+            _managementCosmosClient = managementCosmosClient ?? throw new ArgumentNullException(nameof(managementCosmosClient));
+            _userCosmosClient = userCosmosClient ?? throw new ArgumentNullException(nameof(userCosmosClient));
         }
 
-        public async Task Add(SnagItUser user, CancellationToken cancellationToken)
+        public async Task AddUser(SnagItUser user, CancellationToken cancellationToken)
         {
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
             }
 
-            // NEED TO SOMEHOW STORE HASH....
+            // Create a new container for the current user
+            await _userCosmosClient.CreateUserContainerIfNotExists(user.Id.ToString());
 
-            var container = _cosmosClient.GetManagementContainer();
-            using (var stream = _cosmosClient.ToStream(user))
-            {
-                using (var responseMessage = await container.CreateItemStreamAsync(
-                    stream,
-                    new PartitionKey(user.PartitionKey),
-                    requestOptions: null,
-                    cancellationToken))
-                {
-                    responseMessage.EnsureSuccessStatusCode();
-                }
-            }
-
-            await PublishDomainEvents(user: user);
-        }
-
-        public async Task Update(SnagItUser user, CancellationToken cancellationToken)
-        {
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-
-            var container = _cosmosClient.GetManagementContainer();
-            using (var stream = _cosmosClient.ToStream(user))
-            {
-                using (var responseMessage = await container.ReplaceItemStreamAsync(
-                    stream,
-                    user.Id.ToString(),
-                    new PartitionKey(user.PartitionKey),
-                    requestOptions: null,
-                    cancellationToken))
-                {
-                    responseMessage.EnsureSuccessStatusCode();
-                }
-            }
+            // Also add the user to the management container
+            await _managementCosmosClient.Create<SnagItUser>(
+                user,
+                user.PartitionKey,
+                cancellationToken);
 
             await PublishDomainEvents(user);
         }
 
-        public async Task<SnagItUser> Get(Guid id, string username, CancellationToken cancellationToken)
+        public async Task UpdateUser(SnagItUser user, CancellationToken cancellationToken)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            await _managementCosmosClient.Replace(
+                user, 
+                user.Id.ToString(), 
+                user.PartitionKey,
+                cancellationToken);
+
+            await PublishDomainEvents(user);
+        }
+
+        public async Task<SnagItUser> GetUser(Guid id, string username, CancellationToken cancellationToken)
         {
             if (id.Equals(default))
             {
                 throw new ArgumentException($"The value provided for {nameof(id)} is a default value.");
             }
 
-            var container = _cosmosClient.GetManagementContainer();
-            using (var responseMessage = await container.ReadItemStreamAsync(
-                id.ToString(),
-                new PartitionKey(SnagItUser.GeneratePartitionKey(username)),
-                requestOptions: null,
-                cancellationToken))
+            if (string.IsNullOrWhiteSpace(username))
             {
-                if (responseMessage.IsSuccessStatusCode)
-                {
-                    var streamResponse = _cosmosClient.FromStream<SnagItUser>(responseMessage.Content);
-
-                    return streamResponse;
-                }
-
-                if (responseMessage.StatusCode.Equals(HttpStatusCode.NotFound))
-                {
-                    return null;
-                }
-
-                responseMessage.EnsureSuccessStatusCode();
-
-                return default;
+                throw new ArgumentException($"The value provided for {nameof(username)} is empty.");
             }
+
+            return await _managementCosmosClient.Get<SnagItUser>(
+                id.ToString(), 
+                SnagItUser.GeneratePartitionKey(username), 
+                cancellationToken);
         }
 
-        public async Task<List<SnagItUser>> GetAll(string username, CancellationToken cancellationToken = default)
+        public async Task<List<SnagItUser>> GetAllUsersWithUsername(string username, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(username))
             {
@@ -123,7 +99,7 @@ namespace SnagIt.API.Core.Infrastructure.Repositiories
             var query = new QueryDefinition("SELECT * FROM c WHERE c.PartitionKey=@partitionKey")
                 .WithParameter("@partitionKey", partitionKey);
 
-            return await _cosmosClient.Get<SnagItUser>(query, cancellationToken);
+            return await _managementCosmosClient.Get<SnagItUser>(query, cancellationToken);
         }
 
         private async Task PublishDomainEvents(Entity user)

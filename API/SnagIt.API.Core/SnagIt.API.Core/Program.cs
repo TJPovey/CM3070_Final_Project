@@ -9,6 +9,7 @@ using NodaTime.Serialization.JsonNet;
 using SnagIt.API.Core.Application.Behaviours;
 using SnagIt.API.Core.Infrastructure.Middleware;
 using SnagIt.API.Core.Infrastructure.Repositiories;
+using SnagIt.API.Core.Infrastructure.Repositiories.Blob.Clients;
 using SnagIt.API.Core.Infrastructure.Repositiories.Cosmos;
 using SnagIt.API.Core.Infrastructure.Repositiories.Cosmos.Clients;
 using SnagIt.API.Core.Infrastructure.Services;
@@ -23,7 +24,7 @@ var host = new HostBuilder()
             .UseWhen<VerifyTokenMiddleware>(context =>
             {
                 return context.FunctionDefinition.Name != "API_User_Post" && 
-                       context.FunctionDefinition.Name != "API_User_Login";
+                       context.FunctionDefinition.Name != "API_Authorise_User";
             });
     })
     .ConfigureServices(services =>
@@ -46,8 +47,11 @@ var host = new HostBuilder()
             .AddHttpContextAccessor()
             .AddLogging()
             .AddSingleton<IJwtSecurityTokenHandlerService, JwtSecurityTokenHandlerService>()
+            .AddSingleton<IIsolatedBlobClient, IsolatedBlobClient>()
             .AddSingleton<IManagementCosmosClient, ManagementCosmosClient>()
-            .AddSingleton<IUserRepository, UserRepository>();
+            .AddSingleton<IUserCosmosClient, UserCosmosClient>()
+            .AddSingleton<IUserRepository, UserRepository>()
+            .AddSingleton<IPropertyRepository, PropertyRepository>();
 
         services
             .AddAuthentication(options =>

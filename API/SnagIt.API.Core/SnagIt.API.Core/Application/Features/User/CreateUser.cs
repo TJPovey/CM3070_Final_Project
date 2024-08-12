@@ -3,6 +3,7 @@ using SnagIt.API.Core.Infrastructure.Repositiories;
 using SnagIt.API.Core.Application.Models.User;
 using FluentValidation;
 using SnagIt.API.Core.Domain.Aggregates.Shared;
+using SnagIt.API.Core.Domain.Aggregates.User;
 
 namespace SnagIt.API.Core.Application.Features.User
 {
@@ -101,7 +102,7 @@ namespace SnagIt.API.Core.Application.Features.User
 
             private async Task VerifyUserDoesNotExist(Command request, CancellationToken cancellationToken)
             {
-                var user = await _userRepository.GetAll(request.Data.Username, cancellationToken);
+                var user = await _userRepository.GetAllUsersWithUsername(request.Data.Username, cancellationToken);
                 if (user?.Count > 0)
                 {
                     throw new ArgumentException($"A {nameof(Domain.Aggregates.User.SnagItUser)} entity already exists.");
@@ -118,13 +119,9 @@ namespace SnagIt.API.Core.Application.Features.User
                     request.Data.Username,
                     request.Data.Email);
 
-                var snagItEntity = Domain.Aggregates.User.SnagItUser
-                    .Create(
-                        Guid.NewGuid(),
-                        request.Data.Password,
-                        userDetail);
+                var snagItEntity = SnagItUser.Create(request.Data.Password, userDetail);
 
-                await _userRepository.Add(snagItEntity, cancellationToken);
+                await _userRepository.AddUser(snagItEntity, cancellationToken);
             }
         }
     }

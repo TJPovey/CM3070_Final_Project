@@ -10,7 +10,6 @@ namespace SnagIt.API.Core.Application.Models.User
         public class UserDetailItem : ResponseItem<UserDetail>
         {
             public override UserDetail Item { get; set; }
-            public List<PropertyAssignment> PropertyAssignments { get; set; }
         }
 
         public class UserDetail
@@ -21,6 +20,7 @@ namespace SnagIt.API.Core.Application.Models.User
             public string LastName { get; set; }
             public string UserName { get; set; }
             public string Email { get; set; }
+            public List<PropertyAssignment> PropertyAssignments { get; set; }
         }
 
         public class PropertyAssignment
