@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
 using SnagIt.API.Core.Application.Authorisation;
-using SnagIt.API.Core.API;
 using SnagIt.API.Core.Infrastructure.Repositiories;
 using SnagIt.API.Core.Domain.Aggregates.Property;
 using SnagIt.API.Core.Application.Models.Property;

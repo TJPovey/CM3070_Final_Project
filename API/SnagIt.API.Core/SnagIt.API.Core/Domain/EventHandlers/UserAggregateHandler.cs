@@ -4,20 +4,35 @@ using SnagIt.API.Core.Domain.Aggregates.User;
 using SnagIt.API.Core.Domain.Events.PropertyAggregate;
 using SnagIt.API.Core.Domain.Events.UserAggregate;
 using SnagIt.API.Core.Infrastructure.Repositiories;
+using SnagIt.API.Core.Infrastructure.Repositiories.Blob.Clients;
 
 
 namespace SnagIt.API.Core.Domain.EventHandlers
 {
     public class UserAggregateHandler : 
         INotificationHandler<PropertyUserAssignedDomainEvent>,
-        INotificationHandler<PropertyCreatedDomainEvent>
+        INotificationHandler<PropertyCreatedDomainEvent>,
+        INotificationHandler<UserCreatedDomainEvent>
     {
         private readonly IUserRepository _userRepository;
+        private readonly IIsolatedBlobClient _isolatedBlobClient;
 
-        public UserAggregateHandler(IUserRepository userRepository)
+        public UserAggregateHandler(IUserRepository userRepository, IIsolatedBlobClient isolatedBlobClient)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            _isolatedBlobClient = isolatedBlobClient ?? throw new ArgumentNullException(nameof(isolatedBlobClient));
         }
+
+        public async Task Handle(UserCreatedDomainEvent notification, CancellationToken cancellationToken)
+        {
+            if (notification is null)
+            {
+                throw new ArgumentException($"A {nameof(UserCreatedDomainEvent)} instance for {nameof(notification)} was not supplied.");
+            }
+
+            await _isolatedBlobClient.CreateContainerIfNotExists(notification.SnagItUser.Id);
+        }
+
 
         public async Task Handle(PropertyCreatedDomainEvent notification, CancellationToken cancellationToken)
         {

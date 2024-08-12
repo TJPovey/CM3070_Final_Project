@@ -1,10 +1,9 @@
 ﻿using FluentValidation;
 using MediatR;
-using SnagIt.API.Core.Application.Authorisation;
 using SnagIt.API.Core.Infrastructure.Repositiories;
 
 
-namespace SnagIt.API.Core.API
+namespace SnagIt.API.Core.Application.Authorisation
 {
     public class VerifyUserIsAssignedToTargetProperty
     {

@@ -1,5 +1,4 @@
-﻿using SnagIt.API.Core.Application.Models.Property;
-using SnagIt.API.Core.Domain.Aggregates.Property;
+﻿using SnagIt.API.Core.Domain.Aggregates.Property;
 using static SnagIt.API.Core.Application.Models.Property.PropertyDto;
 
 
