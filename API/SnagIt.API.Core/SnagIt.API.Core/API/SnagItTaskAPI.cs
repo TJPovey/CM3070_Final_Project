@@ -38,6 +38,58 @@ namespace SnagIt.API.Core.API
             return result.GenerateIActionResultForResponse();
         }
 
+        [Function("API_Task_Assign_Image")]
+        public async Task<IActionResult> AssignImageToTask(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = null)]
+            HttpRequestData request,
+            FunctionContext context,
+            CancellationToken cancellationToken)
+        {
+            var claims = request.Headers.GetClaimsPrincipal();
+            var userId = claims.GetUserId();
+            var userName = claims.GetUserName();
+            var parameters = request.Query;
+            var propertyId = parameters.Get("propertyId");
+            var taskId = parameters.Get("taskId");
+
+            var command = TaskImagePut.Command.Create(
+                request.Body,
+                Guid.Parse(taskId),
+                Guid.Parse(propertyId),
+                userId,
+                userName);
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            return result.GenerateIActionResultForResponse();
+        }
+
+        [Function("API_Task_Set_Open_Status")]
+        public async Task<IActionResult> PutOpenStatus(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = null)]
+            HttpRequestData request,
+            FunctionContext context,
+            CancellationToken cancellationToken)
+        {
+            var claims = request.Headers.GetClaimsPrincipal();
+            var userId = claims.GetUserId();
+            var userName = claims.GetUserName();
+            var parameters = request.Query;
+            var taskId = parameters.Get("taskId");
+            var propertyId = parameters.Get("propertyId");
+
+            var command = TaskStatusPut.Command.Create(
+                request.Body,
+                Guid.Parse(taskId),
+                Guid.Parse(propertyId),
+                userId,
+                userName);
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            return result.GenerateIActionResultForResponse();
+        }
+
         [Function("API_Task_Get")]
         public async Task<IActionResult> Get(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)]

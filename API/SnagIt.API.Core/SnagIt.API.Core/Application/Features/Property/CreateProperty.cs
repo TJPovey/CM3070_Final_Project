@@ -103,6 +103,7 @@ namespace SnagIt.API.Core.Application.Features.Property
                 var propertyDetail = PropertyDetail.Create(
                     request.Data.PropertyName,
                     request.Data.ReportTitle,
+                    null,
                     locationDetail);
 
                 var propertyEntity = SnagItProperty

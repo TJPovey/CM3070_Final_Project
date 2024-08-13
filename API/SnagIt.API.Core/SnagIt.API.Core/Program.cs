@@ -1,3 +1,4 @@
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Azure.Cosmos;
@@ -13,8 +14,9 @@ using SnagIt.API.Core.Infrastructure.Repositiories.Blob.Clients;
 using SnagIt.API.Core.Infrastructure.Repositiories.Cosmos;
 using SnagIt.API.Core.Infrastructure.Repositiories.Cosmos.Clients;
 using SnagIt.API.Core.Infrastructure.Services;
+using System.Reflection;
 using System.Text;
-
+using SnagIt.API.Core.Infrastructure.Extensions;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication(builder =>
@@ -51,7 +53,9 @@ var host = new HostBuilder()
             .AddSingleton<IManagementCosmosClient, ManagementCosmosClient>()
             .AddSingleton<IUserCosmosClient, UserCosmosClient>()
             .AddSingleton<IUserRepository, UserRepository>()
-            .AddSingleton<IPropertyRepository, PropertyRepository>();
+            .AddSingleton<IPropertyRepository, PropertyRepository>()
+            .RegisterGenericImplementations();
+
 
         services
             .AddAuthentication(options =>
@@ -76,10 +80,11 @@ var host = new HostBuilder()
                 });
 
         services.AddAuthorization();
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         services.AddMediatR(config =>
         {
-            config.RegisterServicesFromAssembly(typeof(Program).Assembly);
+            config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
             config.AddBehavior(typeof(IPipelineBehavior<,>), typeof(AuthorisationBehavior<,>), ServiceLifetime.Transient);
             config.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidatorBehavior<,>), ServiceLifetime.Transient);
         });

@@ -1,51 +1,40 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
+using Newtonsoft.Json;
 using SnagIt.API.Core.Application.Exceptions;
 using SnagIt.API.Core.Application.Extensions.Exceptions;
-using FluentValidation;
 using SnagIt.API.Core.Application.Features.Shared.Models;
+using SnagIt.API.Core.Application.Features.SnagTask;
+using SnagIt.API.Core.Application.Models.Property;
 using SnagIt.API.Core.Application.Models.Task;
 
 
-namespace SnagIt.API.Core.Application.Features.SnagTask.API
+namespace SnagIt.API.Core.Application.Features.Property.API
 {
-    public class TaskGet
+    public class TaskImagePut
     {
-        public class Query : IRequest<TaskDto>
+        public class Command : IRequest<TaskDto>
         {
-            private Query(
-                string username,
-                Guid userId,
-                Guid propertyId,
-                Guid propertyOwnerId,
-                Guid taskId)
+            private Command(Stream data, Guid taskId, Guid propertyId, Guid userId, string userName)
             {
-                Username = username;
+                Data = data;
                 UserId = userId;
+                UserName = userName;
                 PropertyId = propertyId;
-                PropertyOwnerId = propertyOwnerId;
                 TaskId = taskId;
             }
 
-            public static Query Create(
-                string username,
-                Guid userId,
-                Guid propertyId,
-                Guid propertyOwnerId,
-                Guid taskId)
-                => new Query(username, userId, propertyId, propertyOwnerId, taskId);
+            public static Command Create(Stream data, Guid taskId, Guid propertyId, Guid userId, string userName)
+                => new Command(data, taskId, propertyId, userId, userName);
 
-            public string Username { get; }
-
+            public Stream Data { get; }
             public Guid UserId { get; }
-
             public Guid PropertyId { get; }
-
-            public Guid PropertyOwnerId { get; }
-
             public Guid TaskId { get; }
+            public string UserName { get; }
         }
 
-        public class Handler : IRequestHandler<Query, TaskDto>
+        public class Handler : IRequestHandler<Command, TaskDto>
         {
             private readonly IMediator _mediator;
 
@@ -54,27 +43,26 @@ namespace SnagIt.API.Core.Application.Features.SnagTask.API
                 _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             }
 
-            public async Task<TaskDto> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<TaskDto> Handle(Command request, CancellationToken cancellationToken)
             {
-                TaskDto.TaskDetailItem data = null;
+                if (request is null)
+                {
+                    throw new ArgumentNullException(nameof(request));
+                }
+
                 ResponseError error = null;
                 try
                 {
-                    var query = GetTaskById.Query.Create(
-                        request.Username,
-                        request.UserId,
-                        request.PropertyId,
-                        request.PropertyOwnerId,
-                        request.TaskId);
-                    var result = await _mediator.Send(query, cancellationToken);
-
-                    data = result;
+                    var requestBody = await new StreamReader(request.Data).ReadToEndAsync();
+                    var dto = JsonConvert.DeserializeObject<TaskImageAssignmentPutDto>(requestBody);
+                    var command = AssignImageToTask.Command.Create(dto, request.TaskId, request.PropertyId, request.UserId, request.UserName);
+                    await _mediator.Send(command, cancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    if (ex is ValidationException || 
-                        ex is ArgumentException || 
-                        ex is FormatException)
+                    if (ex is ValidationException
+                        || ex is ArgumentException
+                        || ex is JsonException)
                     {
                         error = new ResponseError
                         {
@@ -102,16 +90,14 @@ namespace SnagIt.API.Core.Application.Features.SnagTask.API
                     }
                 }
 
-                var response = new TaskDto()
+                return new TaskDto
                 {
                     ApiVersion = "1.0",
+                    Method = "task.image.put",
+                    Data = null,
                     Id = Guid.NewGuid(),
-                    Method = "task.get",
-                    Data = data,
                     Error = error
                 };
-
-                return response;
             }
         }
     }

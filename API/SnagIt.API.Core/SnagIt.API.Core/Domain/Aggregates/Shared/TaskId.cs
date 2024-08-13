@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SnagIt.API.Core.Application.Features.SnagTask;
 using SnagIt.API.Core.Domain.Exceptions;
 using SnagIt.API.Core.Domain.SeedWork;
 
@@ -32,6 +33,7 @@ namespace SnagIt.API.Core.Domain.Aggregates.Shared
             TaskPriority taskPriority,
             LocationDetail? locationDetail)
             => new TaskId(id, name, open, taskCategory, taskPriority, locationDetail);
+
 
         protected override IEnumerable<object> GetAtomicValues()
         {

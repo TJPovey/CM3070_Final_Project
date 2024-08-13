@@ -5,6 +5,8 @@ using SnagIt.API.Core.Infrastructure.Repositiories;
 using SnagIt.API.Core.Domain.Aggregates.Property;
 using SnagIt.API.Core.Application.Models.Property;
 using SnagIt.API.Core.Application.Extensions.Mapping.Property;
+using SnagIt.API.Core.Infrastructure.Repositiories.Blob.Clients;
+using SnagIt.API.Core.Domain.Aggregates.Shared;
 
 
 namespace SnagIt.API.Core.Application.Features.Property
@@ -80,10 +82,12 @@ namespace SnagIt.API.Core.Application.Features.Property
         public class Handler : IRequestHandler<Query, PropertyDto.PropertyDetailItem>
         {
             private readonly IPropertyRepository _propertyRepository;
+            private readonly IIsolatedBlobClient _isolatedBlobClient;
 
-            public Handler(IPropertyRepository propertyRepository)
+            public Handler(IPropertyRepository propertyRepository, IIsolatedBlobClient isolatedBlobClient)
             {
                 _propertyRepository = propertyRepository ?? throw new ArgumentNullException(nameof(propertyRepository));
+                _isolatedBlobClient = isolatedBlobClient ?? throw new ArgumentNullException(nameof(isolatedBlobClient));
             }
 
             public async Task<PropertyDto.PropertyDetailItem> Handle(Query request, CancellationToken cancellationToken)
@@ -101,7 +105,14 @@ namespace SnagIt.API.Core.Application.Features.Property
                         $"for {nameof(GetPropertyById)} with propertyId: {request.PropertyId}");
                 }
 
-                var result = data.ToPropertyDetailItem();
+                var userRole = data.AssignedUsers.First(x => x.UserId.Id.Equals(request.UserId)).Role;
+
+                // Readers of this property are not authorised to gain a write token
+                var writeToken = userRole.Equals(UserRole.Reader) ? 
+                    null :
+                    await _isolatedBlobClient.GetWriteToken(data.OwnerId.Id);
+
+                var result = data.ToPropertyDetailItem(writeToken);
 
                 return result;
             }
