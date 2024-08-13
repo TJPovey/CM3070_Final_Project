@@ -52,7 +52,7 @@ namespace SnagIt.API.Core.Application.Features.Property.API
                 try
                 {
                     var requestBody = await new StreamReader(request.Data).ReadToEndAsync();
-                    var dto = JsonConvert.DeserializeObject<PropertyUserAssignmentPostDto>(requestBody);
+                    var dto = JsonConvert.DeserializeObject<PropertyUserAssignmentPutDto>(requestBody);
                     var command = AssignUserToProperty.Command.Create(dto, request.PropertyId, request.UserId, request.UserName);
                     await _mediator.Send(command, cancellationToken);
                 }
@@ -91,7 +91,7 @@ namespace SnagIt.API.Core.Application.Features.Property.API
                 return new PropertyDto
                 {
                     ApiVersion = "1.0",
-                    Method = "user.property.post",
+                    Method = "user.property.put",
                     Data = null,
                     Id = Guid.NewGuid(),
                     Error = error

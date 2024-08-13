@@ -1,38 +1,46 @@
 ﻿using FluentValidation;
 using MediatR;
-using Microsoft.Azure.Cosmos.Linq;
 using SnagIt.API.Core.Application.Authorisation;
-using SnagIt.API.Core.Application.Features.Shared.Validators;
-using SnagIt.API.Core.Application.Models.Property;
+using SnagIt.API.Core.Application.Models.Task;
 using SnagIt.API.Core.Domain.Aggregates.Property;
-using SnagIt.API.Core.Domain.Aggregates.Shared;
+using SnagIt.API.Core.Domain.Aggregates.SnagItTask;
 using SnagIt.API.Core.Domain.Aggregates.User;
-using SnagIt.API.Core.Domain.Exceptions;
 using SnagIt.API.Core.Infrastructure.Repositiories;
+using SnagIt.API.Core.Infrastructure.Repositiories.Blob.Clients;
 
 
-namespace SnagIt.API.Core.Application.Features.Property
+namespace SnagIt.API.Core.Application.Features.SnagTask
 {
-    public class AssignUserToProperty
+    public class AssignImageToTask
     {
         public class Command : IRequest
         {
-            private Command(PropertyUserAssignmentPutDto data, Guid propertyId, Guid userId, string userName)
+            private Command(
+                TaskImageAssignmentPutDto data,
+                Guid taskId,
+                Guid propertyId, 
+                Guid userId, 
+                string userName)
             {
                 Data = data;
                 UserId = userId;
                 Username = userName;
                 PropertyId = propertyId;
+                TaskId = taskId;
             }
 
-            public static Command Create(PropertyUserAssignmentPutDto data, Guid propertyId, Guid userId, string userName)
-                => new Command(data, propertyId, userId, userName);
+            public static Command Create(
+                TaskImageAssignmentPutDto data,
+                Guid taskId,
+                Guid propertyId, 
+                Guid userId, 
+                string userName)
+                => new Command(data, taskId, propertyId, userId, userName);
 
-            public PropertyUserAssignmentPutDto Data { get; }
+            public TaskImageAssignmentPutDto Data { get; }
+            public Guid TaskId { get; }
             public Guid PropertyId { get; }
-
             public Guid UserId { get; }
-
             public string Username { get; }
         }
 
@@ -42,7 +50,10 @@ namespace SnagIt.API.Core.Application.Features.Property
             {
                 RuleFor(query => query.Data)
                     .NotNull()
-                    .SetValidator(new PropertyUserAssignmentPostDtoValidator());
+                    .SetValidator(new TaskImageAssignmentPutDtoValidator());
+
+                RuleFor(data => data.TaskId)
+                    .NotEmpty();
 
                 RuleFor(data => data.PropertyId)
                     .NotEmpty();
@@ -54,19 +65,12 @@ namespace SnagIt.API.Core.Application.Features.Property
                     .NotEmpty();
             }
 
-            private class PropertyUserAssignmentPostDtoValidator : AbstractValidator<PropertyUserAssignmentPutDto>
+            private class TaskImageAssignmentPutDtoValidator : AbstractValidator<TaskImageAssignmentPutDto>
             {
-                public PropertyUserAssignmentPostDtoValidator()
+                public TaskImageAssignmentPutDtoValidator()
                 {
-                    RuleFor(data => data.AssignedToUserName)
+                    RuleFor(data => data.ImageName)
                         .NotEmpty();
-
-                    RuleFor(data => data.UserRole)
-                        .NotEmpty()
-                        .Must(role => 
-                            UserRole.FromName(role) == UserRole.Contributer ||
-                            UserRole.FromName(role) == UserRole.Reader)
-                        .WithMessage($"UserRole must be either {UserRole.Contributer} or {UserRole.Reader}.");
                 }
             }
         }
@@ -96,7 +100,21 @@ namespace SnagIt.API.Core.Application.Features.Property
                     return AuthorisationResult.Success();
                 }
 
-                return AuthorisationResult.Failure($"Only users assigned to the property as an owner are authorised to perform this action.");
+                var userIsAssignedToPropertyAsContributer =
+                    VerifyUserIsAssignedToTargetPropertyAsContributer.Query.Create(
+                        request.UserId,
+                        request.Username,
+                        request.PropertyId);
+
+                var userIsAssignedToPropertyAsContributerResult =
+                    await _mediator.Send(userIsAssignedToPropertyAsContributer, cancellationToken);
+
+                if (userIsAssignedToPropertyAsContributerResult.IsAuthorised)
+                {
+                    return AuthorisationResult.Success();
+                }
+
+                return AuthorisationResult.Failure($"Only users assigned to the property as an owner or contributer are authorised to perform this action.");
             }
         }
 
@@ -106,15 +124,18 @@ namespace SnagIt.API.Core.Application.Features.Property
             private readonly IMediator _mediator;
             private readonly IPropertyRepository _propertyRepository;
             private readonly IUserRepository _userRepository;
+            private readonly IIsolatedBlobClient _isolatedBlobClient;
 
             public Handler(
                 IMediator mediator,
                 IPropertyRepository propertyRepository,
-                IUserRepository userRepository)
+                IUserRepository userRepository,
+                IIsolatedBlobClient isolatedBlobClient)
             {
                 _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
                 _propertyRepository = propertyRepository ?? throw new ArgumentNullException(nameof(propertyRepository));
                 _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+                _isolatedBlobClient = isolatedBlobClient ?? throw new ArgumentNullException(nameof(isolatedBlobClient));
             }
 
             public async Task Handle(Command request, CancellationToken cancellationToken)
@@ -125,23 +146,32 @@ namespace SnagIt.API.Core.Application.Features.Property
                 }
 
                 await VerifyUserExists(request, cancellationToken);
-                var userToAssign = await VerifyAssignedUserExists(request, cancellationToken);
                 var property = await VerifyPropertyExists(request, cancellationToken);
+                var task = await VerifyTaskExists(request, cancellationToken);
 
-                await Create(request, userToAssign, property, cancellationToken);
+                await Create(request, property, task, cancellationToken);
             }
 
             private async Task Create(
                 Command request,
-                SnagItUser userToAssign,
                 SnagItProperty property,
+                SnagItTask task,
                 CancellationToken cancellationToken)
             {
-                var user = UserId.Create(userToAssign.Id, userToAssign.UserDetail.UserName);
-                var role = UserRole.FromName(request.Data.UserRole);
-                property.AssignUserToPropertyWithRole(user, role);
+                var imageUri = await _isolatedBlobClient.GetTaskImageReadToken(
+                    property.OwnerId.Id,
+                    property.Id,
+                    task.Id,
+                    request.Data.ImageName);
 
-                await _propertyRepository.UpdateProperty(property, request.UserId, cancellationToken);
+                if (imageUri is null) 
+                {
+                    throw new ArgumentNullException($"{nameof(imageUri)} is null");
+                }
+
+                task.AssignImageToTask(imageUri);
+
+                await _propertyRepository.UpdateTask(task, request.UserId, cancellationToken);
             }
 
             private async Task VerifyUserExists(Command request, CancellationToken cancellationToken)
@@ -153,36 +183,34 @@ namespace SnagIt.API.Core.Application.Features.Property
                 }
             }
 
-            private async Task<SnagItUser> VerifyAssignedUserExists(Command request, CancellationToken cancellationToken)
-            {
-                var user = await _userRepository.GetAllUsersWithUsername(
-                    request.Data.AssignedToUserName,
-                    cancellationToken);
-
-                if (user != null && user?.Count == 0)
-                {
-                    throw new ArgumentNullException($"A {nameof(SnagItUser)} user with username [${request.Data.AssignedToUserName}] could not be found.");
-                }
-                if (user?.Count > 1)
-                {
-                    throw new DomainException($"A {nameof(SnagItUser)} multiple users with the same username exist.");
-                }
-                return user.First();
-            }
-
             private async Task<SnagItProperty> VerifyPropertyExists(Command request, CancellationToken cancellationToken)
             {
-                var property = await _propertyRepository.GetProperty(
+                var task = await _propertyRepository.GetProperty(
                     request.PropertyId,
                     request.UserId,
                     cancellationToken);
 
-                if (property is null)
+                if (task is null)
                 {
                     throw new ArgumentException($"A {nameof(SnagItProperty)} entity does not exists.");
                 }
 
-                return property;
+                return task;
+            }
+
+            private async Task<SnagItTask> VerifyTaskExists(Command request, CancellationToken cancellationToken)
+            {
+                var task = await _propertyRepository.GetTask(
+                    request.TaskId,
+                    request.UserId,
+                    cancellationToken);
+
+                if (task is null)
+                {
+                    throw new ArgumentException($"A {nameof(SnagItTask)} entity does not exists.");
+                }
+
+                return task;
             }
         }
     }

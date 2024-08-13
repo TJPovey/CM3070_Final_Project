@@ -19,8 +19,10 @@ namespace SnagIt.API.Core.Application.Models.Task
             public string Id { get; set; }
             public string PropertyId { get; set; }
             public string Title { get; set; }
+            public bool Open { get; set; }
             public string Area { get; set; }
             public string Description { get; set; }
+            public Uri? ImageUri { get; set; }
             public Instant DueDate { get; set; }
             public double EstimatedCost { get; set; }
             public Category Category { get; set; }

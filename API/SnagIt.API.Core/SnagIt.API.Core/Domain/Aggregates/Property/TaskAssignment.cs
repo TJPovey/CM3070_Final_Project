@@ -16,11 +16,16 @@ namespace SnagIt.API.Core.Domain.Aggregates.User
         public static TaskAssignment Create(TaskId taskId)
             => new TaskAssignment(taskId);
 
+        public void UpdateTaskId(TaskId taskId)
+        {
+            TaskId = taskId;
+        }
+
         protected override IEnumerable<object> GetAtomicValues()
         {
             yield return TaskId;
         }
 
-        public TaskId TaskId { get; }
+        public TaskId TaskId { get; private set; }
     }
 }
