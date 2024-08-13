@@ -122,6 +122,37 @@ namespace SnagIt.API.Core.Domain.Aggregates.Property
             var taskAssignment = TaskAssignment.Create(taskId);
 
             _assignedTasks.Add(taskAssignment);
+
+            //! Publish domain events for email notifications
+        }
+
+        public void UpdateTask(TaskId taskId)
+        {
+            if (taskId is null)
+            {
+                throw new DomainException($"A {nameof(TaskId)} instance for {nameof(taskId)} was not supplied.");
+            }
+
+            var task = _assignedTasks.First(x => x.TaskId.Id.Equals(taskId.Id));
+
+            if (task is null)
+            {
+                throw new DomainException($"A {nameof(TaskId)} instance for {nameof(taskId)} cuold not be found.");
+            }
+
+            task.UpdateTaskId(taskId);
+
+            //! Publish domain events for email notifications
+        }
+
+        public void AssignImageToProperty(Uri imagePath)
+        {
+            if (imagePath is null)
+            {
+                throw new DomainException($"A {nameof(imagePath)} instance was not supplied.");
+            }
+
+            PropertyDetail.UpdateImageUri(imagePath);
         }
 
         public void RemoveFromProperty(PropertyId property)

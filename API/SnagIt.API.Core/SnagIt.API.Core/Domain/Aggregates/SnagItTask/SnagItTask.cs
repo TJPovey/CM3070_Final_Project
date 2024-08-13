@@ -3,6 +3,7 @@ using SnagIt.API.Core.Domain.Aggregates.Shared;
 using SnagIt.API.Core.Domain.Events.PropertyAggregate;
 using SnagIt.API.Core.Domain.Exceptions;
 using SnagIt.API.Core.Domain.SeedWork;
+using System.Threading.Tasks;
 
 
 namespace SnagIt.API.Core.Domain.Aggregates.SnagItTask
@@ -46,6 +47,26 @@ namespace SnagIt.API.Core.Domain.Aggregates.SnagItTask
 
             return task;
         }
+
+        public void UpdateStatus(bool open, UserId propertyOwnerId)
+        {
+            TaskDetail.UpdateOpenStatus(open);
+            
+            var @event = TaskStatusUpdatedDomainEvent.Create(this, propertyOwnerId);
+
+            AddDomainEvent(@event);
+        }
+
+        public void AssignImageToTask(Uri imagePath)
+        {
+            if (imagePath is null)
+            {
+                throw new DomainException($"A {nameof(imagePath)} instance was not supplied.");
+            }
+
+            TaskDetail.UpdateImageUri(imagePath);
+        }
+
 
         public static string GeneratePartitionKey(Guid taskId)
             => $"{PartitionKeyPrefix}{taskId}";

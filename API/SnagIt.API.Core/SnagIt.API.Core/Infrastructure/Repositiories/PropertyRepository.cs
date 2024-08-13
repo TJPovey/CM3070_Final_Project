@@ -18,6 +18,8 @@ namespace SnagIt.API.Core.Infrastructure.Repositiories
         Task AddTask(SnagItTask task, Guid userId, CancellationToken cancellationToken = default);
 
         Task<SnagItTask> GetTask(Guid id, Guid userId, CancellationToken cancellationToken = default);
+
+        Task UpdateTask(SnagItTask task, Guid userId, CancellationToken cancellationToken = default);
     }
 
     public class PropertyRepository : IPropertyRepository
@@ -112,6 +114,28 @@ namespace SnagIt.API.Core.Infrastructure.Repositiories
                 task.PartitionKey,
                 cancellationToken);
 
+
+            await PublishDomainEvents(task);
+        }
+
+        public async Task UpdateTask(SnagItTask task, Guid userId, CancellationToken cancellationToken = default)
+        {
+            if (task is null)
+            {
+                throw new ArgumentNullException(nameof(task));
+            }
+
+            if (userId.Equals(default))
+            {
+                throw new ArgumentException($"The value provided for {nameof(userId)} is a default value.");
+            }
+
+            await _userCosmosClient.Replace(
+                userId,
+                task,
+                task.Id.ToString(),
+                task.PartitionKey,
+                cancellationToken);
 
             await PublishDomainEvents(task);
         }

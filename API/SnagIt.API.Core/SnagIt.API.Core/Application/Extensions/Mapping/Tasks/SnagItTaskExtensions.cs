@@ -26,12 +26,14 @@ namespace SnagIt.API.Core.Application.Extensions.Mapping.Tasks
                 Item = new TaskDetail
                 {
                     Id = task.Id.ToString(),
-                    PropertyId = task.Id.ToString(),
+                    PropertyId = task.TaskDetail.Property.Id.ToString(),
                     Title = task.TaskDetail.Title,
+                    Open = task.TaskDetail.Open,
                     Area = task.TaskDetail.Area,
                     Description = task.TaskDetail.Description,
                     DueDate = task.TaskDetail.DueDate,
                     EstimatedCost = task.TaskDetail.EstimatedCost,
+                    ImageUri = task.TaskDetail.ImageUri,
                     Category = new Category
                     {
                         Id = task.TaskDetail.TaskCategory.Id.ToString(),

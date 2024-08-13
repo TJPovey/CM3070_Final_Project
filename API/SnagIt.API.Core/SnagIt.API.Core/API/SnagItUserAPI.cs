@@ -59,8 +59,6 @@ namespace SnagIt.API.Core.API
             var userId = claims.GetUserId();
             var userName = claims.GetUserName();
 
-            var parameters = request.Query;
-
             var query = UserGet.Query.Create(
                 userName,
                 userId);

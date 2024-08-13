@@ -16,11 +16,12 @@ namespace SnagIt.API.Core.Domain.Aggregates.SnagItTask
             bool open,
             Instant dueDate,
             double estimatedCost,
-            TaskCategory category,
-            TaskPriority priority,
+            TaskCategory taskCategory,
+            TaskPriority taskPriority,
             LocationDetail? locationDetail,
             PropertyId property,
-            UserId assignedUser)
+            UserId assignedUser,
+            Uri? imageUri)
         {
             Title = title; 
             Area = area; 
@@ -28,11 +29,12 @@ namespace SnagIt.API.Core.Domain.Aggregates.SnagItTask
             Open = open;
             DueDate = dueDate;
             EstimatedCost = estimatedCost;
-            TaskCategory = category;
-            TaskPriority = priority;
+            TaskCategory = taskCategory;
+            TaskPriority = taskPriority;
             LocationDetail = locationDetail;
             Property = property;
             AssignedUser = assignedUser;
+            ImageUri = imageUri;
         }
 
         public static TaskDetail Create(
@@ -46,7 +48,8 @@ namespace SnagIt.API.Core.Domain.Aggregates.SnagItTask
             TaskPriority priority,
             LocationDetail? locationDetail,
             PropertyId property,
-            UserId assignedUser)
+            UserId assignedUser,
+            Uri? imagePath = null)
         {
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -104,7 +107,18 @@ namespace SnagIt.API.Core.Domain.Aggregates.SnagItTask
                 priority,
                 locationDetail,
                 property,
-                assignedUser);
+                assignedUser,
+                imagePath);
+        }
+
+        public void UpdateImageUri(Uri imagePath)
+        {
+            ImageUri = imagePath;
+        }
+
+        public void UpdateOpenStatus(bool open)
+        {
+            Open = open;
         }
 
         protected override IEnumerable<object> GetAtomicValues()
@@ -122,15 +136,16 @@ namespace SnagIt.API.Core.Domain.Aggregates.SnagItTask
             yield return AssignedUser;
         }
 
-        public string Title { get; set; }
-        public string Area { get; set; }
-        public string Description { get; set; }
-        public bool Open { get; set; }
-        public Instant DueDate { get; set; }
+        public string Title { get; }
+        public string Area { get; }
+        public string Description { get; }
+        public Uri? ImageUri { get; private set; }
+        public bool Open { get; private set; }
+        public Instant DueDate { get; }
         public double EstimatedCost { get; set; }
-        public TaskCategory TaskCategory { get; set; }
+        public TaskCategory TaskCategory { get; }
         public TaskPriority TaskPriority { get; set; }
-        public LocationDetail? LocationDetail { get; private set; }
+        public LocationDetail? LocationDetail { get; }
         public PropertyId Property { get; }
         public UserId AssignedUser { get; }
     }
