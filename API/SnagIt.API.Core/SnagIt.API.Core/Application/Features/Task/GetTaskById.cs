@@ -2,8 +2,6 @@
 using MediatR;
 using SnagIt.API.Core.Application.Authorisation;
 using SnagIt.API.Core.Infrastructure.Repositiories;
-using SnagIt.API.Core.Domain.Aggregates.Property;
-using SnagIt.API.Core.Application.Extensions.Mapping.Property;
 using SnagIt.API.Core.Application.Models.Task;
 using SnagIt.API.Core.Application.Extensions.Mapping.Tasks;
 using SnagIt.API.Core.Domain.Aggregates.SnagItTask;
