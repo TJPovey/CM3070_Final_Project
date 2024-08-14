@@ -3,9 +3,9 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonButton, IonContent, IonHeader, IonImg, IonItem, IonLabel, IonText, IonTitle, IonToolbar } from '@ionic/angular/standalone';
-import { UserDtoExtensions } from 'src/app/extensions/userdtoextensions';
 import { ProfileFacadeService } from 'src/app/facade/Profile/profile-facade.service';
 import { AppRoute } from '../app-routes.enum';
+import { UserDtoExtensions } from 'src/app/extensions/UserDtoExtensions';
 
 @Component({
   selector: 'app-register',
@@ -76,7 +76,7 @@ export class RegisterComponent {
         formData["password"]);
 
       this._profileFacadeService.registerUser(dto).subscribe(res => {
-        this._router.navigate([`${AppRoute.Tabs}/{${AppRoute.Property_List}}`])
+        this._router.navigate([`${AppRoute.Home}/{${AppRoute.Property_List}}`])
       });
   }
 
@@ -88,8 +88,7 @@ export class RegisterComponent {
       formData["password"]);
 
     this._profileFacadeService.login(dto).subscribe(res => {
-      console.log("routing");
-      this._router.navigate([`${AppRoute.Tabs}/${AppRoute.Property_List}`])
+      this._router.navigate([`${AppRoute.Home}/${AppRoute.Property_List}`])
     });;
   }
 

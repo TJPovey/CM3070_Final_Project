@@ -8,10 +8,12 @@ import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { environment } from './environments/environment';
 import { Ion } from '@cesium/engine';
-import { HttpClient, provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withInterceptorsFromDi, withXsrfConfiguration } from '@angular/common/http';
 import { httpCacheInterceptor } from './app/interceptors/http-cache-interceptor';
 import { tokenInterceptor } from './app/interceptors/http-auth-interceptor';
 import { initializeApplication } from './app/services/authentication/app-initializer';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+
 
 defineCustomElements(window);
 
@@ -26,7 +28,7 @@ if (environment.production) {
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    provideIonicAngular({ mode: 'md' }),
+    provideIonicAngular(),
     provideRouter(
       routes, 
       withPreloading(PreloadAllModules),
@@ -34,6 +36,10 @@ bootstrapApplication(AppComponent, {
         paramsInheritanceStrategy: 'always'  // Allows to inherit params from parent routes
       })),
     provideHttpClient(
+      withXsrfConfiguration({
+        cookieName: 'XSRF-TOKEN',
+        headerName: 'X-CSRFTOKEN',
+      }),
       withInterceptors([
         tokenInterceptor,
         httpCacheInterceptor,
@@ -45,5 +51,6 @@ bootstrapApplication(AppComponent, {
       useFactory: initializeApplication,
       multi: true,
     },
+    provideAnimationsAsync(),
   ],
 });
