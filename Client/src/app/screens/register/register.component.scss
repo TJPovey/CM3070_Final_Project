@@ -63,7 +63,7 @@ ion-toolbar {
         ion-item {
             width: 100%;
             padding-bottom: 1rem;
-
+            --background: none;
             .item-inner {
                 --border-style: none;
             }

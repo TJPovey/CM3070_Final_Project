@@ -95,13 +95,12 @@
         </ion-input>
       </ion-item>
       
-      <!-- [disabled]="registerForm.invalid" -->
       <ion-button 
         tabindex="0" 
         fill="outline"
         type="submit"
         color="dark" 
-        >
+        [disabled]="registerForm.invalid">
           {{isLoginForm ? "Login" : "Register"}}
       </ion-button>
     </form>
