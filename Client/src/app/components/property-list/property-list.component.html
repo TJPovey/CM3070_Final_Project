@@ -2,15 +2,13 @@
 
   <ng-container *ngIf="(propertyCollection$ | async) as propertyCollection">
 
-    <ion-item *ngFor="let property of propertyCollection.items; trackBy:trackByPropertyId">
+    <ion-item *ngFor="let property of propertyCollection; trackBy:trackByPropertyId">
       
       <ion-thumbnail>
-        <img [alt]="property.title" [src]="property.iconURL" />
+        <!-- <img [alt]="property.property.id" [src]="property.iconURL" /> -->
       </ion-thumbnail>
 
-      <ion-label>{{ property.title }}</ion-label>
-      <!-- note should show if property is 'finished' or not -->
-      <ion-note>{{ property.description }}</ion-note>
+      <ion-label>{{ property.property.name }}</ion-label>
     </ion-item>
 
   </ng-container>

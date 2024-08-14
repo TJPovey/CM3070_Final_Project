@@ -1,3 +1,4 @@
-export interface IResponseDataDTO {
+export interface IResponseDataDTO<T> {
     kind: string;
+    item: T;
 }
