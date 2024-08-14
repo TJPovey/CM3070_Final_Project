@@ -6,6 +6,6 @@ export interface IResponseDTO<T> {
     context: string;
     id: string;
     method: string;
-    data: T & IResponseDataDTO;
+    data: IResponseDataDTO<T>;
     error?: IResponseErrorDTO;
 }

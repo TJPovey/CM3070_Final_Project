@@ -5,6 +5,7 @@ import { BehaviorSubject, Observable, Subject, switchMap } from 'rxjs';
 import { PropertyFacadeService } from 'src/app/facade/Property/property-facade.service';
 import { IPropertyListItemDTO } from 'src/app/models/DTOs/Property/IPropertyListGetDTO';
 import { IResponseCollectionDTO } from 'src/app/models/DTOs/Responses/IResponseCollectionDTO';
+import { IPropertyAssignment } from 'src/app/models/DTOs/User/IUserDTO';
 import { PaginationOptions } from 'src/app/models/Pagination/IPaginationOptions';
 
 @Component({
@@ -22,31 +23,18 @@ import { PaginationOptions } from 'src/app/models/Pagination/IPaginationOptions'
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PropertyListComponent implements OnInit {
+export class PropertyListComponent {
 
   private _propertyFacadeService = inject(PropertyFacadeService);
-
-  protected propertyCollection$: Observable<IResponseCollectionDTO<IPropertyListItemDTO>>;
+  protected propertyCollection$: Observable<IPropertyAssignment[]>;
 
   constructor() {
     this.propertyCollection$ = this._propertyFacadeService.propertyCollection$;
-
-    this.propertyCollection$.subscribe(res => {
-      console.log(res);
-    })
   }
 
-  public ngOnInit() {
-    this.handlePagingRequest();
-  }
 
-  protected handlePagingRequest(pagination?: PaginationOptions) {
-    this._propertyFacadeService.updatePropertyPage(pagination);
+  public trackByPropertyId(index: number, property: IPropertyAssignment) {
+    return property.property.id;
   }
-
-  public trackByPropertyId(index: number, property: IPropertyListItemDTO) {
-    return property.id;
-  }
-  
 
 }
