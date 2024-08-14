@@ -3,7 +3,7 @@ export abstract class StorageService {
 
   protected static readonly APP_PREFIX = "SNAG_IT";
   protected static readonly APP_VERSION = "1.0";
-  protected static readonly MAX_CACHE_AGE_MILLISECONDS = 24 * 60 * 60 * 1000; // 24 Hours
+  protected static readonly MAX_CACHE_AGE_MILLISECONDS = 60 * 60 * 1000; // 1 Hour
 
   protected static generatePrefix = () =>
   `${StorageService.APP_PREFIX}-${StorageService.APP_VERSION}`;
