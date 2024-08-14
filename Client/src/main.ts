@@ -1,6 +1,6 @@
-import { enableProdMode } from '@angular/core';
+import { APP_INITIALIZER, enableProdMode } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { RouteReuseStrategy, provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
+import { RouteReuseStrategy, provideRouter, withPreloading, PreloadAllModules, withRouterConfig } from '@angular/router';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 
@@ -8,15 +8,16 @@ import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { environment } from './environments/environment';
 import { Ion } from '@cesium/engine';
-import { provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
 import { httpCacheInterceptor } from './app/interceptors/http-cache-interceptor';
+import { tokenInterceptor } from './app/interceptors/http-auth-interceptor';
+import { initializeApplication } from './app/services/authentication/app-initializer';
 
 defineCustomElements(window);
 
 (window as Record<string, any>)['CESIUM_BASE_URL'] = '/assets/cesium/';
 
-Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzZGFiODFkMi1lM2VhLTRmMGMtYmQ1MS1lZDI5NmYxYTdjNGEiLCJpZCI6MTU3MzYsInNjb3BlcyI6WyJhc3IiLCJnYyJdLCJpYXQiOjE1Njg3MzE5NzB9.9qw8Aceuwh0AHDn-JC2SPZnjcAhznFs35-y_JosSTSA";
-
+Ion.defaultAccessToken = environment.cesiumKey;
 
 if (environment.production) {
   enableProdMode();
@@ -25,13 +26,24 @@ if (environment.production) {
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    provideIonicAngular(),
-    provideRouter(routes, withPreloading(PreloadAllModules)),
+    provideIonicAngular({ mode: 'md' }),
+    provideRouter(
+      routes, 
+      withPreloading(PreloadAllModules),
+      withRouterConfig({
+        paramsInheritanceStrategy: 'always'  // Allows to inherit params from parent routes
+      })),
     provideHttpClient(
       withInterceptors([
+        tokenInterceptor,
         httpCacheInterceptor,
       ]),
       withInterceptorsFromDi()
     ),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeApplication,
+      multi: true,
+    },
   ],
 });
