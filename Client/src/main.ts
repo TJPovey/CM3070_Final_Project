@@ -6,7 +6,7 @@ import { defineCustomElements } from '@ionic/pwa-elements/loader';
 
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
-import { environment } from './environments/environment';
+import { environment } from './environments/environment.local';
 import { Ion } from '@cesium/engine';
 import { provideHttpClient, withInterceptors, withInterceptorsFromDi, withXsrfConfiguration } from '@angular/common/http';
 import { httpCacheInterceptor } from './app/interceptors/http-cache-interceptor';

@@ -3,7 +3,7 @@ import { inject } from '@angular/core';
 import { Endpoints } from '../api/api-endpoints';
 import { ITokenDetail } from '../models/DTOs/User/ITokenDto';
 import { LocalStorageService } from '../services/storage/local-storage.service';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.local';
 
 export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
 
