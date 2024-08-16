@@ -14,19 +14,22 @@ namespace SnagIt.API.Core.Application.Features.Property
     {
         public class Command : IRequest
         {
-            private Command(PropertyPostDto data, Guid userId, string userName)
+            private Command(PropertyPostDto data, Guid propertyId, Guid userId, string userName)
             {
                 Data = data;
                 UserId = userId;
                 Username = userName;
+                PropertyId = propertyId;
             }
 
-            public static Command Create(PropertyPostDto data, Guid userId, string userName)
-                => new Command(data, userId, userName);
+            public static Command Create(PropertyPostDto data, Guid propertyId, Guid userId, string userName)
+                => new Command(data, propertyId, userId, userName);
 
             public PropertyPostDto Data { get; }
 
             public Guid UserId { get; }
+
+            public Guid PropertyId { get; }
 
             public string Username { get; }
         }
@@ -43,6 +46,9 @@ namespace SnagIt.API.Core.Application.Features.Property
                     .NotEmpty();
 
                 RuleFor(query => query.Username)
+                    .NotEmpty();
+
+                RuleFor(query => query.PropertyId)
                     .NotEmpty();
             }
 
@@ -98,7 +104,8 @@ namespace SnagIt.API.Core.Application.Features.Property
             {
                 var locationDetail = LocationDetail.FromDegrees(
                     request.Data.Location.Latitude,
-                    request.Data.Location.Longitude);
+                    request.Data.Location.Longitude,
+                    request.Data.Location.Elevation);
 
                 var propertyDetail = PropertyDetail.Create(
                     request.Data.PropertyName,
@@ -107,8 +114,10 @@ namespace SnagIt.API.Core.Application.Features.Property
                     locationDetail);
 
                 var propertyEntity = SnagItProperty
-                    .Create(propertyDetail,
-                            UserId.Create(user.Id, user.UserDetail.UserName));
+                    .Create(
+                        request.PropertyId,
+                        propertyDetail,
+                        UserId.Create(user.Id, user.UserDetail.UserName));
 
                 await _propertyRepository.AddProperty(propertyEntity, user.Id, cancellationToken);
             }

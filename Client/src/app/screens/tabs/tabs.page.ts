@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { IonIcon, IonLabel, IonTabBar, IonTabButton, IonTabs } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { ellipse, square, triangle } from 'ionicons/icons';
+import { homeSharp, globe } from 'ionicons/icons';
 import { AppRoute } from '../app-routes.enum';
 
 @Component({
@@ -23,6 +23,6 @@ export class TabsPage {
   protected propertiesRoute = `${AppRoute.Home}/${AppRoute.Property_List}`;
 
   constructor() {
-    addIcons({ triangle, ellipse, square });
+    addIcons({ homeSharp, globe });
   }
 }

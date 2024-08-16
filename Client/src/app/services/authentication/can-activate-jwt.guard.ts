@@ -12,9 +12,9 @@ export const authenticateGuard: CanActivateFn = (route: ActivatedRouteSnapshot, 
 
     if (localStorageService.getItem<ITokenDetail>("accessTokenDetails", false)) {
 
-      if (state.url.includes(AppRoute.Login)) {
-        return router.navigate([AppRoute.Home]);
-      }
+      // if (state.url.includes(AppRoute.Login)) {
+      //   return router.navigate([AppRoute.Home]);
+      // }
 
       return of(true);
     } else {

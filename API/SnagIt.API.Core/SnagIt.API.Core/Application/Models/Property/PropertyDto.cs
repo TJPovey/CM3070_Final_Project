@@ -21,6 +21,7 @@ namespace SnagIt.API.Core.Application.Models.Property
             public Uri? ImageUri { get; set; }
             public Uri? WriteToken { get; set; }
             public LocationGetDto Location { get; set; }
+            public UserRole OwnerId { get; set; }
             public List<UserAssignment> UserAssignments { get; set; }
             public List<TaskAssignment> TaskAssignments { get; set; }
         }

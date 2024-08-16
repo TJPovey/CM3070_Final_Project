@@ -24,12 +24,30 @@
   </div>
 </div>
 
+<div class="property-selection">
+  <ion-list>
+    <ion-item>
+      <ion-select
+        #propertySelectionContainer
+        (ionChange)="handlePropertySelection($event)" 
+        aria-label="Site list" 
+        placeholder="Select Site">
+          <ion-select-option 
+            *ngFor="let property of propertyCollection$ | async" 
+            [value]="property">
+              {{property.property.name}}
+          </ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-list>
+</div>
+
 <ion-fab slot="fixed" vertical="bottom" horizontal="end">
   <ion-fab-button color="light">
     <ion-icon name="chevron-up-sharp"></ion-icon>
   </ion-fab-button>
   <ion-fab-list side="top">
-    <ion-fab-button color="light">
+    <ion-fab-button (click)="newPropertySelected()" color="light">
       <ion-icon name="home-sharp"></ion-icon>
     </ion-fab-button>
     <ion-fab-button color="light">
@@ -39,11 +57,28 @@
 </ion-fab>
 
 
+
 <ion-content [fullscreen]="true">
 
   <ion-content class="content">
     <div class="cesium-app-container" id="cesiumContainer"></div>
   </ion-content>
+
+  <ng-container *ngIf="{
+      selectedPosition: (selectedPosition$ | async),
+      pendingProperty: (pendingPropertySelection$ | async)
+    } as observables">
+
+    <app-create-property-form 
+      *ngIf="observables.selectedPosition && observables.pendingProperty"
+      [latitudeRadians]="observables.selectedPosition.latitude"
+      [longitudeRadians]="observables.selectedPosition.longitude"
+      [elevation]="observables.selectedPosition.height"
+      (addPropertyCancelled)="handleAddPropertyCancelled()"
+      (addPropertyDetails)="handlePropertyAdded($event)">
+    </app-create-property-form>
+
+  </ng-container>
 
   <ion-modal>
     <ng-template>
