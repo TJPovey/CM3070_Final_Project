@@ -60,11 +60,20 @@ namespace SnagIt.API.Core.Domain.Aggregates.User
             => $"{PartitionKeyPrefix}{username}";
 
 
-        public void AssignProperty(PropertyId propertyId, UserRole userRole)
+        public void AssignProperty(
+            PropertyId propertyId, 
+            LocationDetail locationDetail, 
+            UserRole userRole, 
+            string? imageUri)
         {
             if (propertyId is null)
             {
                 throw new DomainException($"A {nameof(PropertyId)} instance for {nameof(propertyId)} was not supplied.");
+            }
+
+            if (locationDetail is null)
+            {
+                throw new DomainException($"A {nameof(LocationDetail)} instance for {nameof(locationDetail)} was not supplied.");
             }
 
             if (userRole is null)
@@ -85,7 +94,11 @@ namespace SnagIt.API.Core.Domain.Aggregates.User
                 _assignedProperties.Remove(existinPropertyAssignment);
             }
 
-            var propertyAssignment = PropertyAssignment.Create(propertyId, userRole);
+            var propertyAssignment = PropertyAssignment.Create(
+                propertyId, 
+                userRole,
+                locationDetail,
+                imageUri);
 
             _assignedProperties.Add(propertyAssignment);
         }
@@ -97,14 +110,31 @@ namespace SnagIt.API.Core.Domain.Aggregates.User
                 throw new DomainException($"A {nameof(PropertyId)} instance for {nameof(property)} was not supplied.");
             }
 
-            var existingOrganisationAssignment = _assignedProperties.FirstOrDefault(x => x.Property.Id.Equals(property.Id));
-            if (existingOrganisationAssignment is null)
+            var existingPropertyAssignment = _assignedProperties.FirstOrDefault(x => x.Property.Id.Equals(property.Id));
+            if (existingPropertyAssignment is null)
             {
                 //  Property isn't assigned to target User.
                 return;
             }
 
-            _assignedProperties.Remove(existingOrganisationAssignment);
+            _assignedProperties.Remove(existingPropertyAssignment);
+        }
+
+        public void UpdatePropertyImageUri(Guid propertyId, string? uri)
+        {
+            if (propertyId.Equals(default))
+            {
+                throw new DomainException($"A {nameof(PropertyId)} instance for {nameof(propertyId)} was not supplied.");
+            }
+
+            var existingPropertyAssignment = _assignedProperties.FirstOrDefault(x => x.Property.Id.Equals(propertyId));
+            if (existingPropertyAssignment is null)
+            {
+                //  Property isn't assigned to target User.
+                return;
+            }
+
+            existingPropertyAssignment.UpdateImageUri(uri);
         }
 
         public UserDetail UserDetail { get; private set; }

@@ -7,5 +7,7 @@ namespace SnagIt.API.Core.Application.Models.Shared
         public decimal Latitude { get; set; }
 
         public decimal Longitude { get; set; }
+        
+        public double? Elevation { get; set; }
     }
 }

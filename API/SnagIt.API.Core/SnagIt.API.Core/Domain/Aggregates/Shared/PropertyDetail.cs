@@ -10,7 +10,7 @@ namespace SnagIt.API.Core.Domain.Aggregates.Shared
         private PropertyDetail(
             string propertyName, 
             string reportTitle,
-            Uri? imageUri,
+            string? imageUri,
             LocationDetail locationDetail)
         {
             PropertyName = propertyName;
@@ -22,7 +22,7 @@ namespace SnagIt.API.Core.Domain.Aggregates.Shared
         public static PropertyDetail Create(
             string propertyName, 
             string reportTitle,
-            Uri? imageUri,
+            string? imageUri,
             LocationDetail locationDetail)
         {
             if (string.IsNullOrWhiteSpace(propertyName))
@@ -43,7 +43,7 @@ namespace SnagIt.API.Core.Domain.Aggregates.Shared
             return new PropertyDetail(propertyName, reportTitle, imageUri, locationDetail);
         }
 
-        public void UpdateImageUri(Uri imagePath)
+        public void UpdateImageUri(string imagePath)
         {
             ImageUri = imagePath;
         }
@@ -55,7 +55,7 @@ namespace SnagIt.API.Core.Domain.Aggregates.Shared
             yield return LocationDetail;
         }
 
-        public Uri? ImageUri { get; private set; }
+        public string? ImageUri { get; private set; }
         public string PropertyName { get; }
         public string ReportTitle { get; }
         public LocationDetail LocationDetail { get; }

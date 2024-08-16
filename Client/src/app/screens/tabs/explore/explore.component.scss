@@ -1,0 +1,79 @@
+.control-container {
+    position: absolute;
+    width: 100%;
+    padding: 1rem;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+
+    .button-container {
+        padding-top: 1rem;
+    }
+
+    .search-container {
+
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        z-index: 1;
+    
+        ion-searchbar {
+            display: block;
+            padding: 0;
+        }
+    
+        ion-list {
+            background: var(--ion-background-color, #fff);
+            padding: 0;
+    
+            ion-item {
+                --background: none;
+            }:hover {
+                cursor: pointer;
+                --background: #313131;
+                --border-color: var(--ion-background-color, #fff);
+            }
+    
+        }:last-child{
+            --border-style: none;
+        }
+    
+    }
+}
+
+.property-selection {
+    z-index: 1;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 0.5rem;
+
+    ion-list {
+        border-radius: 10%;
+    }
+
+    ion-item {
+        --border-style: none;
+    }
+}
+
+
+
+.content {
+    height:100%;
+    width:100%;
+}
+
+.cesium-app-container {
+    height:100%;
+    width:100%;
+    margin:0;
+    padding:0;
+    display: block;
+    min-height: 100%;
+}
+
+  
+.cesium-widget-credits {
+    padding: 0.5rem !important;
+}    
