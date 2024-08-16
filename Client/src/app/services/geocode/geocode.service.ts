@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.local';
 import { IPlaceFeature, MapboxOutput } from './geocode.model';
 
 

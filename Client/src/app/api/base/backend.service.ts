@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable } from "rxjs";
 import { IResponseDTO } from "src/app/models/DTOs/Responses/IResponseDTO";
 import { cacheURL } from "src/app/services/storage/models/CACHE_URL";
-import { environment } from "src/environments/environment";
+import { environment } from "src/environments/environment.local";
 
 //! TODO - move to app-extensions lib? will make sense as that lib is for typical angular lib services
 
