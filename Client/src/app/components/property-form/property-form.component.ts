@@ -8,7 +8,10 @@ import { IPropertyDetail } from 'src/app/models/DTOs/Property/IPropertyDto';
   templateUrl: './property-form.component.html',
   styleUrls: ['./property-form.component.scss'],
   standalone: true,
-  imports: [IonNote, IonToggle, IonInput,  
+  imports: [
+    IonNote, 
+    IonToggle, 
+    IonInput,  
     CommonModule,
     IonButtons, 
     IonButton, 
