@@ -6,8 +6,6 @@ import { IonButton, IonButtons, IonContent, IonHeader, IonImg, IonInput, IonItem
 import { PropertyDtoExtensions } from 'src/app/extensions/PropertyDtoExtensions';
 import { PropertyFacadeService } from 'src/app/facade/Property/property-facade.service';
 import { IPropertyDto } from 'src/app/models/DTOs/Property/IPropertyDto';
-import { IPropertyPostDto } from 'src/app/models/DTOs/Property/IPropertyPostDto';
-import { ILocationDto } from 'src/app/models/DTOs/Shared/ILocationDto';
 import { PhotoCaptureService } from 'src/app/services/photo-capture/photo-capture.service';
 
 
