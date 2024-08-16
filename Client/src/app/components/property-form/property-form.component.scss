@@ -1,0 +1,25 @@
+.center {
+    text-align: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    height: 100%;
+    width: 100%;
+    
+    ion-label {
+        margin-bottom: 1rem;
+    }
+
+    .content {
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+        width: 100%;
+
+        ion-label {
+            color: #a3a3a3;
+        }
+    }
+}
+

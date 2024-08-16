@@ -11,7 +11,8 @@ import { PhotoCaptureService } from '../../../services/photo-capture/photo-captu
 import { CreatePropertyFormComponent } from 'src/app/components/create-property-form/create-property-form.component';
 import { PropertyFacadeService } from 'src/app/facade/Property/property-facade.service';
 import { IPropertyAssignment } from 'src/app/models/DTOs/User/IUserDTO';
-import { IPropertyDto } from 'src/app/models/DTOs/Property/IPropertyDto';
+import { IPropertyDetail, IPropertyDto } from 'src/app/models/DTOs/Property/IPropertyDto';
+import { PropertyFormComponent } from 'src/app/components/property-form/property-form.component';
 
 @Component({
   selector: 'app-explore',
@@ -39,7 +40,8 @@ import { IPropertyDto } from 'src/app/models/DTOs/Property/IPropertyDto';
     IonImg,
     IonSelect,
     IonSelectOption,
-    CreatePropertyFormComponent
+    CreatePropertyFormComponent,
+    PropertyFormComponent
   ],
 })
 export class ExploreComponent implements AfterViewInit {
@@ -73,6 +75,9 @@ export class ExploreComponent implements AfterViewInit {
   protected propertyCollection$ = this._propertyFacadeService.propertyCollection$;
 
   protected slectedProperty?: IPropertyAssignment;
+
+  private _propertyDetailsSelected$ = new Subject<IPropertyDetail>();
+  protected propertyDetailsSelected$ = this._propertyDetailsSelected$.asObservable();
 
   constructor() {
     addIcons({homeSharp, alertSharp, chevronUpSharp});
@@ -132,8 +137,6 @@ export class ExploreComponent implements AfterViewInit {
               const lat = property.location.latitude;
               const height = property.location.elevation;
 
-
-      
               const entity = {
                 id: property.property.id,
                 position: Cartesian3.fromDegrees(long, lat, height),
@@ -148,9 +151,6 @@ export class ExploreComponent implements AfterViewInit {
           });
       });
   }
-
-  // const long = res.location.coords.longitude + (0.1 * Math.random());
-  // const lat = res.location.coords.latitude + (0.1 * Math.random());
 
   private async addGoogleBuildings(scene: Scene) {
     this.googleBuildings = await createGooglePhotorealistic3DTileset(undefined, {
@@ -237,9 +237,16 @@ export class ExploreComponent implements AfterViewInit {
       const pickResult = scene.pick(event.position, 3, 3);
 
       if (pickResult?.id instanceof Entity) {
-        const userPhoto = this._photoCaptureService.getImageBlob(pickResult.id.id);
-        // this.currentPhoto = userPhoto;
-        this.modal.isOpen = true;
+
+        this._propertyFacadeService.getProperty(pickResult.id.id)
+          .subscribe(res => {
+            const property = this._propertyFacadeService.getPropertyAssignment(pickResult.id.id);
+            this._propertyDetailsSelected$.next({...res});
+            if (property) {
+              this.propertySelection.value = property;
+            }
+          });
+
         return;
       }
 

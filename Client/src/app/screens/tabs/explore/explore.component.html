@@ -80,6 +80,10 @@
 
   </ng-container>
 
+  <app-property-form
+    [propertyDetail]="(propertyDetailsSelected$ | async)">
+  </app-property-form>
+
   <ion-modal>
     <ng-template>
       <ion-header>

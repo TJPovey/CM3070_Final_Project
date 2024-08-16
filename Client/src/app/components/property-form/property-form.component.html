@@ -1,0 +1,32 @@
+<ion-modal>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title slot="start">{{ propertyDetail?.propertyName }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button ion-button (click)="close()">Close</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    
+    <ion-content class="ion-padding">
+
+      <div class="center">
+
+        <ion-img *ngIf="propertyDetail?.imageUri" [src]="propertyDetail?.imageUri"></ion-img>
+
+        <div class="content">
+          <ion-list [inset]="true">
+            <ion-item>
+              <ion-label> Report title: </ion-label>
+              <p> {{ propertyDetail?.reportTitle }} </p>
+            </ion-item>
+          </ion-list>
+        </div>
+
+      </div>
+
+
+    </ion-content>
+  </ng-template>
+</ion-modal>
