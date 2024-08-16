@@ -1,4 +1,5 @@
 ﻿using SnagIt.API.Core.Application.Features.Shared.Models;
+using SnagIt.API.Core.Application.Models.Shared;
 
 
 namespace SnagIt.API.Core.Application.Models.User
@@ -26,8 +27,9 @@ namespace SnagIt.API.Core.Application.Models.User
         public class PropertyAssignment
         {
             public PropertyId Property { get; set; }
-
+            public Uri? ImageUri { get; set; }
             public UserRole Role { get; set; }
+            public LocationGetDto Location { get; set; }
         }
 
         public class PropertyId

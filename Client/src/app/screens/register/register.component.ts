@@ -40,9 +40,9 @@ export class RegisterComponent {
   constructor() {
     this.registerForm = this._formBuilder.group({
       username: ['', [Validators.required, Validators.minLength(6)]],
-      firstname: ['', [this.booleanValidator()]],
-      lastname: ['', [this.booleanValidator()]],
-      email: ['', [this.booleanValidator()]],
+      firstname: ['', [() => this.booleanValidator]],
+      lastname: ['', [() => this.booleanValidator]],
+      email: ['', [() => this.booleanValidator]],
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
@@ -92,8 +92,7 @@ export class RegisterComponent {
     });;
   }
 
-  private booleanValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
+  private booleanValidator(control: AbstractControl): ValidationErrors | null {
 
       if (!this.isLoginForm && !control.value) {
         return { required: true };
@@ -101,6 +100,4 @@ export class RegisterComponent {
       
       return null;
     };
-  }
-
 }

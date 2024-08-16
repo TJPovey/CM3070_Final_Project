@@ -148,17 +148,17 @@ namespace SnagIt.API.Core.Application.Features.Property
                 SnagItProperty property,
                 CancellationToken cancellationToken)
             {
-                var imageUri = await _isolatedBlobClient.GetPropertyImageReadToken(
+                var imagePath = _isolatedBlobClient.GetPropertyImageContainerPath(
                     property.OwnerId.Id,
                     property.Id,
                     request.Data.ImageName);
 
-                if (imageUri is null) 
+                if (imagePath is null) 
                 {
-                    throw new ArgumentNullException($"{nameof(imageUri)} is null");
+                    throw new ArgumentNullException($"{nameof(imagePath)} is null");
                 }
 
-                property.AssignImageToProperty(imageUri);
+                property.AssignImageToProperty(imagePath);
 
                 await _propertyRepository.UpdateProperty(property, request.UserId, cancellationToken);
             }

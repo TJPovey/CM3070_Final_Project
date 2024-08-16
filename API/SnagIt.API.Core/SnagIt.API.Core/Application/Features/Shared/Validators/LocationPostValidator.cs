@@ -15,6 +15,10 @@ namespace SnagIt.API.Core.Application.Features.Shared.Validators
             RuleFor(data => data.Longitude)
                 .GreaterThanOrEqualTo(180m * -1)
                 .LessThanOrEqualTo(180m);
+
+            RuleFor(data => data.Elevation)
+                .NotNull();
+
         }
     }
 }

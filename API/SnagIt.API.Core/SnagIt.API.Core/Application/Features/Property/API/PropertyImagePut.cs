@@ -91,7 +91,7 @@ namespace SnagIt.API.Core.Application.Features.Property.API
                     ApiVersion = "1.0",
                     Method = "property.image.put",
                     Data = null,
-                    Id = Guid.NewGuid(),
+                    Id = request.PropertyId,
                     Error = error
                 };
             }

@@ -12,7 +12,8 @@ namespace SnagIt.API.Core.Domain.EventHandlers
     public class UserAggregateHandler : 
         INotificationHandler<PropertyUserAssignedDomainEvent>,
         INotificationHandler<PropertyCreatedDomainEvent>,
-        INotificationHandler<UserCreatedDomainEvent>
+        INotificationHandler<UserCreatedDomainEvent>,
+        INotificationHandler<PropertyImageAssignedDomainEvent>
     {
         private readonly IUserRepository _userRepository;
         private readonly IIsolatedBlobClient _isolatedBlobClient;
@@ -55,8 +56,15 @@ namespace SnagIt.API.Core.Domain.EventHandlers
                 notification.SnagItProperty.Id,
                 notification.SnagItProperty.PropertyDetail.PropertyName);
 
+            var locationDetail = LocationDetail.FromDegrees(
+                notification.SnagItProperty.PropertyDetail.LocationDetail.Latitude,
+                notification.SnagItProperty.PropertyDetail.LocationDetail.Longitude,
+                notification.SnagItProperty.PropertyDetail.LocationDetail.Elevation);
+
+            var imageUri = notification.SnagItProperty.PropertyDetail.ImageUri;
+
             // Since this user created this property, it must be true that they are also the owner.
-            targetUser.AssignProperty(property, UserRole.Owner);
+            targetUser.AssignProperty(property, locationDetail, UserRole.Owner, imageUri);
 
             await _userRepository.UpdateUser(targetUser, cancellationToken);
         }
@@ -83,10 +91,42 @@ namespace SnagIt.API.Core.Domain.EventHandlers
                 notification.SnagItProperty.Id,
                 notification.SnagItProperty.PropertyDetail.PropertyName);
 
+            var locationDetail = LocationDetail.FromDegrees(
+                notification.SnagItProperty.PropertyDetail.LocationDetail.Latitude,
+                notification.SnagItProperty.PropertyDetail.LocationDetail.Longitude,
+                notification.SnagItProperty.PropertyDetail.LocationDetail.Elevation);
 
-            targetUser.AssignProperty(property, notification.UserAssignment.Role);
+            var imageUri = notification.SnagItProperty.PropertyDetail.ImageUri;
+
+            targetUser.AssignProperty(property, locationDetail, notification.UserAssignment.Role, imageUri);
 
             await _userRepository.UpdateUser(targetUser, cancellationToken);
+        }
+
+        public async Task Handle(PropertyImageAssignedDomainEvent notification, CancellationToken cancellationToken)
+        {
+            if (notification is null)
+            {
+                throw new ArgumentException($"A {nameof(PropertyUserAssignedDomainEvent)} instance for {nameof(notification)} was not supplied.");
+            }
+
+            var tasks = notification.SnagItProperty.AssignedUsers.Select(async user =>
+                {
+                    var targetUser = await _userRepository.GetUser(
+                        user.UserId.Id,
+                        user.UserId.Username,
+                        cancellationToken);
+
+                    var property = notification.SnagItProperty.Id;
+                    targetUser.UpdatePropertyImageUri(
+                        notification.SnagItProperty.Id, 
+                        notification.SnagItProperty.PropertyDetail.ImageUri);
+
+                    await _userRepository.UpdateUser(targetUser, cancellationToken);
+                }
+            ).ToList();
+
+            await Task.WhenAll(tasks);
         }
     }
 }

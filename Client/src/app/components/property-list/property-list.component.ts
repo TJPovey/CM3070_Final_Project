@@ -1,12 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import { IonItem, IonLabel, IonList, IonThumbnail, IonNote } from '@ionic/angular/standalone';
-import { BehaviorSubject, Observable, Subject, switchMap } from 'rxjs';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { IonItem, IonLabel, IonList, IonNote, IonThumbnail } from '@ionic/angular/standalone';
+import { Observable } from 'rxjs';
 import { PropertyFacadeService } from 'src/app/facade/Property/property-facade.service';
-import { IPropertyListItemDTO } from 'src/app/models/DTOs/Property/IPropertyListGetDTO';
-import { IResponseCollectionDTO } from 'src/app/models/DTOs/Responses/IResponseCollectionDTO';
 import { IPropertyAssignment } from 'src/app/models/DTOs/User/IUserDTO';
-import { PaginationOptions } from 'src/app/models/Pagination/IPaginationOptions';
 
 @Component({
   selector: 'app-property-list',

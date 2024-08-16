@@ -46,12 +46,13 @@ namespace SnagIt.API.Core.Application.Features.Property.API
                     throw new ArgumentNullException(nameof(request));
                 }
 
+                var propertyId = Guid.NewGuid();
                 ResponseError error = null;
                 try
                 {
                     var requestBody = await new StreamReader(request.Data).ReadToEndAsync();
                     var dto = JsonConvert.DeserializeObject<PropertyPostDto>(requestBody);
-                    var command = CreateProperty.Command.Create(dto, request.UserId, request.UserName);
+                    var command = CreateProperty.Command.Create(dto, propertyId, request.UserId, request.UserName);
                     await _mediator.Send(command, cancellationToken);
                 }
                 catch (Exception ex)
@@ -91,7 +92,7 @@ namespace SnagIt.API.Core.Application.Features.Property.API
                     ApiVersion = "1.0",
                     Method = "property.post",
                     Data = null,
-                    Id = Guid.NewGuid(),
+                    Id = propertyId,
                     Error = error
                 };
             }

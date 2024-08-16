@@ -8,7 +8,7 @@ namespace SnagIt.API.Core.Application.Extensions.Mapping.Property;
 public static class SnagItPropertyExtensions
 {
     public static PropertyDetailItem ToPropertyDetailItem(
-        this SnagItProperty snagItProperty, Uri? writeToken)
+        this SnagItProperty snagItProperty, Uri? writeToken, Uri? imageUri)
     {
         var assignedProperties = snagItProperty.AssignedUsers.Select(x =>
         {
@@ -62,15 +62,21 @@ public static class SnagItPropertyExtensions
                 Id = snagItProperty.Id.ToString(),
                 PropertyName = snagItProperty.PropertyDetail.PropertyName,
                 WriteToken = writeToken,
-                ImageUri = snagItProperty.PropertyDetail.ImageUri,
+                ImageUri = imageUri,
                 ReportTitle = snagItProperty.PropertyDetail.ReportTitle,
                 Location = new LocationGetDto
                 {
                     Latitude = snagItProperty.PropertyDetail.LocationDetail.Latitude,
-                    Longitude = snagItProperty.PropertyDetail.LocationDetail.Longitude
+                    Longitude = snagItProperty.PropertyDetail.LocationDetail.Longitude,
+                    Elevation = snagItProperty.PropertyDetail.LocationDetail.Elevation,
                 },
                 UserAssignments = assignedProperties,
-                TaskAssignments = assignedTasks
+                TaskAssignments = assignedTasks,
+                OwnerId = new UserRole
+                {
+                    Id = snagItProperty.OwnerId.Id.ToString(),
+                    Name = snagItProperty.OwnerId.Username
+                }
             },
         };
     }

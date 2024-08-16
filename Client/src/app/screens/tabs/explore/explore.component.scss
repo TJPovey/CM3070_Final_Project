@@ -35,9 +35,25 @@
             }
     
         }:last-child{
-            --border-color: var(--ion-background-color, #fff);
+            --border-style: none;
         }
     
+    }
+}
+
+.property-selection {
+    z-index: 1;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 0.5rem;
+
+    ion-list {
+        border-radius: 10%;
+    }
+
+    ion-item {
+        --border-style: none;
     }
 }
 

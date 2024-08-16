@@ -55,9 +55,11 @@ namespace SnagIt.API.Core.Domain.Aggregates.Property
         }
 
         public static SnagItProperty Create(
-            PropertyDetail propertyDetail, UserId userId)
+            Guid propertyId,
+            PropertyDetail propertyDetail, 
+            UserId userId)
         {
-            var property = new SnagItProperty(Guid.NewGuid(), propertyDetail, userId);
+            var property = new SnagItProperty(propertyId, propertyDetail, userId);
 
             var @event = PropertyCreatedDomainEvent.Create(property, userId);
 
@@ -145,7 +147,7 @@ namespace SnagIt.API.Core.Domain.Aggregates.Property
             //! Publish domain events for email notifications
         }
 
-        public void AssignImageToProperty(Uri imagePath)
+        public void AssignImageToProperty(string imagePath)
         {
             if (imagePath is null)
             {
@@ -153,6 +155,10 @@ namespace SnagIt.API.Core.Domain.Aggregates.Property
             }
 
             PropertyDetail.UpdateImageUri(imagePath);
+
+            var @event = PropertyImageAssignedDomainEvent.Create(this);
+
+            AddDomainEvent(@event);
         }
 
         public void RemoveFromProperty(PropertyId property)

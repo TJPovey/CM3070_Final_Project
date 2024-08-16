@@ -1,8 +1,8 @@
-import { Routes, CanActivateChildFn } from '@angular/router';
-import { TabsPage } from './screens/tabs/tabs.page';
-import { authenticateGuard, authenticateGuardForChild } from './services/authentication/can-activate-jwt.guard';
+import { Routes } from '@angular/router';
 import { AppRoute } from './screens/app-routes.enum';
 import { RegisterComponent } from './screens/register/register.component';
+import { TabsPage } from './screens/tabs/tabs.page';
+import { authenticateGuard, authenticateGuardForChild } from './services/authentication/can-activate-jwt.guard';
 
 export const routes: Routes = [
   {
@@ -14,7 +14,6 @@ export const routes: Routes = [
     path: AppRoute.Login,
     component: RegisterComponent,
     pathMatch: "full",
-    canActivate: [authenticateGuard],
   },
   {
     path: AppRoute.Home,
@@ -37,11 +36,6 @@ export const routes: Routes = [
         path: AppRoute.Property_List,
         loadComponent: () =>
           import('./screens/tabs/properties/properties.component').then((m) => m.PropertiesComponent),
-      },
-      {
-        path: 'tab3',
-        loadComponent: () =>
-          import('./screens/tabs/tab3/tab3.page').then((m) => m.Tab3Page),
       }
     ]
   },
