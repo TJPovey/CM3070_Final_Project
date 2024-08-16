@@ -93,7 +93,7 @@ namespace SnagIt.API.Core.Application.Features.Property.API
                 var response = new PropertyDto()
                 {
                     ApiVersion = "1.0",
-                    Id = Guid.NewGuid(),
+                    Id = request.PropertyId,
                     Method = "property.get",
                     Data = data,
                     Error = error

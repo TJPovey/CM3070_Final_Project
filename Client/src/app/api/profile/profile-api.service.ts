@@ -15,12 +15,6 @@ export class ProfileApiService {
 
   private _backendService = inject(BackendService);
   
-  // public registerUser(params?: HttpParams): Observable<IUserDTO> {
-  //   return this._backendService
-  //     .get<IUserDTO>(Endpoints.API_User_Post, params, true)
-  //     .pipe(shareReplay(1));
-  // }
-
   public registerUser(userDto: IUserPostDto): Observable<IUserDTO> {
     return this._backendService.post(Endpoints.API_User_Post, userDto);
   }
@@ -29,9 +23,7 @@ export class ProfileApiService {
     return this._backendService.post(Endpoints.API_Authorise_User, userDto);
   }
 
-  public getProfile(): Observable<IUserDTO> {
-    return this._backendService.get(Endpoints.API_Profile_Get);
+  public getProfile(params?: HttpParams): Observable<IUserDTO> {
+    return this._backendService.get(Endpoints.API_Profile_Get, params, true);
   }
-
 }
-

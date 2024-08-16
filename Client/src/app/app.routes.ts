@@ -1,44 +1,46 @@
 import { Routes } from '@angular/router';
-import { AppRoute } from './pages/app-routes.enum';
-import { RegisterComponent } from './pages/register/register.component';
-import { TabsPage } from './tabs/tabs.page';
-import { authenticateGuard } from './services/authentication/can-activate-jwt.service';
+import { AppRoute } from './screens/app-routes.enum';
+import { RegisterComponent } from './screens/register/register.component';
+import { TabsPage } from './screens/tabs/tabs.page';
+import { authenticateGuard, authenticateGuardForChild } from './services/authentication/can-activate-jwt.guard';
 
 export const routes: Routes = [
   {
     path: "",
-    redirectTo: AppRoute.Register,
+    redirectTo: AppRoute.Login,
     pathMatch: "full",
   },
   {
-    path: AppRoute.Register,
+    path: AppRoute.Login,
     component: RegisterComponent,
     pathMatch: "full",
   },
   {
-    path: AppRoute.Tabs,
+    path: AppRoute.Home,
     component: TabsPage,
     canActivate: [authenticateGuard],
+    canActivateChild: [authenticateGuardForChild],
+    pathMatch: "prefix",
     children: [
       {
-        path: 'tab1',
+        path: "",
+        redirectTo: AppRoute.Explore,
+        pathMatch: "full",
+      },
+      {
+        path: AppRoute.Explore,
         loadComponent: () =>
-          import('./tab1/tab1.page').then((m) => m.Tab1Page),
+          import('./screens/tabs/explore/explore.component').then((m) => m.ExploreComponent),
       },
       {
         path: AppRoute.Property_List,
         loadComponent: () =>
-          import('./tab2/tab2.page').then((m) => m.Tab2Page),
-      },
-      {
-        path: 'tab3',
-        loadComponent: () =>
-          import('./tab3/tab3.page').then((m) => m.Tab3Page),
+          import('./screens/tabs/properties/properties.component').then((m) => m.PropertiesComponent),
       }
     ]
   },
   {
     path: "**",
-    redirectTo: AppRoute.Register,
+    redirectTo: AppRoute.Home,
   }
 ];

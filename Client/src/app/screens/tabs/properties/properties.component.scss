@@ -1,0 +1,21 @@
+ion-toolbar {
+    --background: var(--ion-text-color);
+    --color: var(--ion-background-color);
+
+    .logo-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        .snagit-logo {
+            object-fit: contain;
+            width: 6%;
+            margin-right: 0.5rem;
+            margin-left: 0.5rem;
+        }
+    }
+}
+
+.title {
+    font-weight: 600;
+}

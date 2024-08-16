@@ -180,7 +180,8 @@ namespace SnagIt.API.Core.Application.Features.SnagTask
                         null : 
                         LocationDetail.FromDegrees(
                             request.Data.Location.Latitude,
-                            request.Data.Location.Longitude);
+                            request.Data.Location.Longitude,
+                            request.Data.Location.Elevation);
 
                 var propertyId = PropertyId.Create(
                     property.Id, 

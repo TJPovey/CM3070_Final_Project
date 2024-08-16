@@ -40,6 +40,15 @@ export class BackendService {
         });
     }
 
+    put<T, V>(path: string, body: T, params?: HttpParams, headers?: HttpHeaders): Observable<V> {
+        const url = this.createUrl(path);
+        return this.http.put<V>(url, body, {
+            params: params || {},
+            headers: headers || {}
+        });
+    }
+
+
     patch<T>(path: string, body: T, params?: HttpParams): Observable<IResponseDTO<T>> {
         const url = this.createUrl(path);
         return this.http.patch<IResponseDTO<T>>(url, body, {

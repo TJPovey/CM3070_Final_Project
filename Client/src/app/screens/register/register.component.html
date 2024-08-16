@@ -1,0 +1,108 @@
+<ion-header>
+  <ion-toolbar>
+    <div class="logo-container">
+      <ion-img class="snagit-logo" src="assets/icon/snag_it_logo_black.svg"></ion-img>
+      <h3 class="title">SnagIt</h3>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="center">
+
+    <h2 class="title">
+      {{isLoginForm ? "Login" : "Register"}}
+    </h2>
+
+    <div class="register-toggle">
+      <p>
+        {{isLoginForm ? "Don't have an account?" : "Already have an account?"}}
+      </p>
+  
+      <ion-button
+        (click)="toggleForm()" 
+        tab="0" 
+        fill="outline" 
+        color="dark"
+        size="small">
+          {{isLoginForm ? "Register" : "Login"}}
+      </ion-button>
+    </div>
+
+    <form 
+      autocomplete="one-time-code"
+      class="generic-form" 
+      [formGroup]="registerForm" 
+      (ngSubmit)="onSubmit()">
+
+      @if (!isLoginForm) {
+
+        <ion-item>
+          <ion-input 
+            tabindex="0"
+            expand="full"
+            placeholder="First Name" 
+            ngDefaultControl 
+            type="text" 
+            formControlName="firstname">
+          </ion-input>
+        </ion-item>
+  
+        <ion-item>
+          <ion-input 
+            tabindex="0"
+            expand="full"
+            placeholder="Last Name" 
+            ngDefaultControl 
+            type="text" 
+            formControlName="lastname">
+          </ion-input>
+        </ion-item>
+  
+        <ion-item>
+          <ion-input 
+            tabindex="0" 
+            labelPlacement="floating"
+            email
+            placeholder="Email" 
+            ngDefaultControl 
+            type="email" 
+            formControlName="email">
+          </ion-input>
+        </ion-item>
+      }
+
+      <ion-item>
+        <ion-input   
+          tabindex="0"
+          expand="full"
+          placeholder="Username" 
+          required 
+          ngDefaultControl 
+          type="text" 
+          formControlName="username">
+        </ion-input>
+      </ion-item>
+  
+      <ion-item>
+        <ion-input  
+          tabindex="0"
+          placeholder="Password" 
+          required 
+          ngDefaultControl 
+          type="password" 
+          formControlName="password">
+        </ion-input>
+      </ion-item>
+      
+      <ion-button 
+        tabindex="0" 
+        fill="outline"
+        type="submit"
+        color="dark" 
+        [disabled]="registerForm.invalid">
+          {{isLoginForm ? "Login" : "Register"}}
+      </ion-button>
+    </form>
+  </div>
+</ion-content>

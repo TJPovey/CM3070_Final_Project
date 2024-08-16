@@ -112,7 +112,11 @@ namespace SnagIt.API.Core.Application.Features.Property
                     null :
                     await _isolatedBlobClient.GetWriteToken(data.OwnerId.Id);
 
-                var result = data.ToPropertyDetailItem(writeToken);
+                var propertyImageUri = data.PropertyDetail.ImageUri is null ?
+                    null : 
+                    await _isolatedBlobClient.GetReadToken(data.PropertyDetail.ImageUri);
+
+                var result = data.ToPropertyDetailItem(writeToken, propertyImageUri);
 
                 return result;
             }
