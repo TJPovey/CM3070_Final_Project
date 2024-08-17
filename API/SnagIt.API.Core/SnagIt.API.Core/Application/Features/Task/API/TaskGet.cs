@@ -4,6 +4,7 @@ using SnagIt.API.Core.Application.Extensions.Exceptions;
 using FluentValidation;
 using SnagIt.API.Core.Application.Features.Shared.Models;
 using SnagIt.API.Core.Application.Models.Task;
+using SnagIt.API.Core.Domain.Aggregates.Shared;
 
 
 namespace SnagIt.API.Core.Application.Features.SnagTask.API
@@ -105,7 +106,7 @@ namespace SnagIt.API.Core.Application.Features.SnagTask.API
                 var response = new TaskDto()
                 {
                     ApiVersion = "1.0",
-                    Id = Guid.NewGuid(),
+                    Id = request.TaskId,
                     Method = "task.get",
                     Data = data,
                     Error = error

@@ -35,7 +35,8 @@ namespace SnagIt.API.Core.Application.Extensions.Mapping.User
                 {
                     Property = new PropertyId { 
                         Id = x.Property.Id, 
-                        Name = x.Property.Name 
+                        Name = x.Property.Name,
+                        OwnerId = x.Property.OwnerId
                     },
                     ImageUri = imageUri,
                     Role = new UserRole

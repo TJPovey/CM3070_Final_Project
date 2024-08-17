@@ -15,24 +15,29 @@ namespace SnagIt.API.Core.Application.Features.Property.API
             private Query(
                 string username,
                 Guid userId,
-                Guid propertyId)
+                Guid propertyId,
+                Guid ownerId)
             {
                 Username = username;
                 UserId = userId;
                 PropertyId = propertyId;
+                OwnerId = ownerId;
             }
 
             public static Query Create(
                 string username,
                 Guid userId,
-                Guid propertyId)
-                => new Query(username, userId, propertyId);
+                Guid propertyId,
+                Guid ownerId)
+                => new Query(username, userId, propertyId, ownerId);
 
             public string Username { get; }
 
             public Guid UserId { get; }
 
             public Guid PropertyId { get; }
+
+            public Guid OwnerId { get; }
         }
 
         public class Handler : IRequestHandler<Query, PropertyDto>
@@ -53,7 +58,8 @@ namespace SnagIt.API.Core.Application.Features.Property.API
                     var query = GetPropertyById.Query.Create(
                         request.Username,
                         request.UserId,
-                        request.PropertyId);
+                        request.PropertyId,
+                        request.OwnerId);
                     var result = await _mediator.Send(query, cancellationToken);
 
                     data = result;

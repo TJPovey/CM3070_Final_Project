@@ -21,7 +21,7 @@ namespace SnagIt.API.Core.Domain.Aggregates.SnagItTask
             LocationDetail? locationDetail,
             PropertyId property,
             UserId assignedUser,
-            Uri? imageUri)
+            string? imageUri)
         {
             Title = title; 
             Area = area; 
@@ -49,7 +49,7 @@ namespace SnagIt.API.Core.Domain.Aggregates.SnagItTask
             LocationDetail? locationDetail,
             PropertyId property,
             UserId assignedUser,
-            Uri? imagePath = null)
+            string? imagePath = null)
         {
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -111,7 +111,7 @@ namespace SnagIt.API.Core.Domain.Aggregates.SnagItTask
                 imagePath);
         }
 
-        public void UpdateImageUri(Uri imagePath)
+        public void UpdateImageUri(string imagePath)
         {
             ImageUri = imagePath;
         }
@@ -139,7 +139,7 @@ namespace SnagIt.API.Core.Domain.Aggregates.SnagItTask
         public string Title { get; }
         public string Area { get; }
         public string Description { get; }
-        public Uri? ImageUri { get; private set; }
+        public string? ImageUri { get; private set; }
         public bool Open { get; private set; }
         public Instant DueDate { get; }
         public double EstimatedCost { get; set; }

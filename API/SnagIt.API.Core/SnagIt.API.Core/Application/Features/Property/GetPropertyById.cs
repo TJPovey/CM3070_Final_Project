@@ -18,24 +18,29 @@ namespace SnagIt.API.Core.Application.Features.Property
             private Query(
                 string username,
                 Guid userId,
-                Guid propertyId)
+                Guid propertyId,
+                Guid ownerId)
             {
                 Username = username;
                 UserId = userId;
                 PropertyId = propertyId;
+                OwnerId = ownerId;
             }
 
             public static Query Create(
                 string username,
                 Guid userId,
-                Guid propertyId)
-                => new Query(username, userId, propertyId);
+                Guid propertyId,
+                Guid ownerId)
+                => new Query(username, userId, propertyId, ownerId);
 
             public string Username { get; }
 
             public Guid UserId { get; }
 
             public Guid PropertyId { get; }
+
+            public Guid OwnerId { get; }
         }
 
         public class Validator : AbstractValidator<Query>
@@ -49,6 +54,9 @@ namespace SnagIt.API.Core.Application.Features.Property
                     .NotEmpty();
 
                 RuleFor(query => query.PropertyId)
+                    .NotEmpty();
+
+                RuleFor(query => query.OwnerId)
                     .NotEmpty();
             }
         }
@@ -97,7 +105,7 @@ namespace SnagIt.API.Core.Application.Features.Property
                     throw new ArgumentNullException(nameof(request));
                 }
 
-                var data = await _propertyRepository.GetProperty(request.PropertyId, request.UserId, cancellationToken);
+                var data = await _propertyRepository.GetProperty(request.PropertyId, request.OwnerId, cancellationToken);
                 if (data is null)
                 {
                     throw new ArgumentException(

@@ -98,11 +98,13 @@ namespace SnagIt.API.Core.API
 
             var parameters = request.Query;
             var propertyId = parameters.Get("propertyId");
+            var ownerId = parameters.Get("ownerId");
 
             var query = PropertyGet.Query.Create(
                 userName,
                 userId,
-                Guid.Parse(propertyId));
+                Guid.Parse(propertyId),
+                Guid.Parse(ownerId));
 
             var result = await _mediator.Send(query, cancellationToken);
 

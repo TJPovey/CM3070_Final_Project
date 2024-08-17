@@ -31,7 +31,8 @@ public static class SnagItPropertyExtensions
                 new LocationGetDto
                 {
                     Latitude = x.TaskId.LocationDetail.Latitude,
-                    Longitude = x.TaskId.LocationDetail.Longitude
+                    Longitude = x.TaskId.LocationDetail.Longitude,
+                    Elevation = x.TaskId.LocationDetail.Elevation
                 };
 
             return new TaskAssignment

@@ -8,14 +8,15 @@ namespace SnagIt.API.Core.Application.Extensions.Mapping.Tasks
 {
     public static class SnagItTaskExtensions
     {
-        public static TaskDetailItem ToTaskDetailItem(this SnagItTask task)
+        public static TaskDetailItem ToTaskDetailItem(this SnagItTask task, Uri? imageUri)
         {
             var location = task.TaskDetail.LocationDetail is null ?
                 null :
                 new LocationGetDto
                 {
                     Latitude = task.TaskDetail.LocationDetail.Latitude,
-                    Longitude = task.TaskDetail.LocationDetail.Longitude
+                    Longitude = task.TaskDetail.LocationDetail.Longitude,
+                    Elevation = task.TaskDetail.LocationDetail.Elevation
                 };
 
 
@@ -33,7 +34,7 @@ namespace SnagIt.API.Core.Application.Extensions.Mapping.Tasks
                     Description = task.TaskDetail.Description,
                     DueDate = task.TaskDetail.DueDate,
                     EstimatedCost = task.TaskDetail.EstimatedCost,
-                    ImageUri = task.TaskDetail.ImageUri,
+                    ImageUri = imageUri,
                     Category = new Category
                     {
                         Id = task.TaskDetail.TaskCategory.Id.ToString(),

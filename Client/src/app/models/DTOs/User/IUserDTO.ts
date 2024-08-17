@@ -25,5 +25,6 @@ export interface IPropertyAssignment {
 
 export interface IPropertyId {
     id: string;
+    ownerId: string;
     name: string;
 }

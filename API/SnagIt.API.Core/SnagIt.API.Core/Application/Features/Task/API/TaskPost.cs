@@ -46,12 +46,13 @@ namespace SnagIt.API.Core.Application.Features.SnagTask.API
                     throw new ArgumentNullException(nameof(request));
                 }
 
+                var taskId = Guid.NewGuid();
                 ResponseError error = null;
                 try
                 {
                     var requestBody = await new StreamReader(request.Data).ReadToEndAsync();
                     var dto = JsonConvert.DeserializeObject<TaskPostDto>(requestBody);
-                    var command = CreateTask.Command.Create(dto, request.UserId, request.UserName);
+                    var command = CreateTask.Command.Create(dto, taskId, request.UserId, request.UserName);
                     await _mediator.Send(command, cancellationToken);
                 }
                 catch (Exception ex)
@@ -91,7 +92,7 @@ namespace SnagIt.API.Core.Application.Features.SnagTask.API
                     ApiVersion = "1.0",
                     Method = "task.post",
                     Data = null,
-                    Id = Guid.NewGuid(),
+                    Id = taskId,
                     Error = error
                 };
             }

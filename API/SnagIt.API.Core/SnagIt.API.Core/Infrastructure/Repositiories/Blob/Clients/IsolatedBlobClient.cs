@@ -12,13 +12,11 @@ namespace SnagIt.API.Core.Infrastructure.Repositiories.Blob.Clients
 
         Task<Uri?> GetWriteToken(Guid containerId);
 
-        Task<Uri?> GetPropertyImageReadToken(Guid containerId, Guid propertyGuid, string imageName);
-
         string GetPropertyImageContainerPath(Guid containerId, Guid propertyGuid, string imageName);
 
-        Task<Uri?> GetReadToken(string path);
+        string GetTaskImageContainerPath(Guid containerId, Guid propertyGuid, Guid taskGuid, string imageName);
 
-        Task<Uri?> GetTaskImageReadToken(Guid containerId, Guid propertyGuid, Guid taskGuid, string imageName);
+        Task<Uri?> GetReadToken(string path);
     }
 
     public class IsolatedBlobClient : IIsolatedBlobClient
@@ -73,40 +71,6 @@ namespace SnagIt.API.Core.Infrastructure.Repositiories.Blob.Clients
                 DateTimeOffset.Now.AddHours(1));
         }
 
-        public async Task<Uri?> GetPropertyImageReadToken(
-            Guid containerId, 
-            Guid propertyGuid,
-            string imageName)
-        {
-            if (containerId.Equals(default))
-            {
-                throw new ArgumentException($"A value for {nameof(containerId)} was not supplied.", nameof(containerId));
-            }
-
-            var uriPath = Path.Combine(
-                containerId.ToString(), 
-                propertyGuid.ToString(),
-                BlobConstants.ImagesFolderName,
-                imageName);
-
-            var container = _blobClient.GetBlobContainerClient(uriPath);
-
-            try
-            {
-                await container.ExistsAsync();
-            }
-            catch (RequestFailedException)
-            {
-                // Blob does not yet exist
-                // Possibly due to no images being assigned to the property yet
-                return null;
-            }
-
-            return container.GenerateSasUri(
-                BlobContainerSasPermissions.Read, 
-                DateTimeOffset.Now.AddHours(1));
-        }
-
         public async Task<Uri?> GetReadToken(string imagePath)
         {
             if (imagePath is null)
@@ -151,36 +115,25 @@ namespace SnagIt.API.Core.Infrastructure.Repositiories.Blob.Clients
             return containerPath;
         }
 
-        public async Task<Uri?> GetTaskImageReadToken(Guid containerId, Guid propertyGuid, Guid taskGuid, string imageName)
+        public string GetTaskImageContainerPath(
+            Guid containerId,
+            Guid propertyGuid,
+            Guid taskGuid,
+            string imageName)
         {
             if (containerId.Equals(default))
             {
                 throw new ArgumentException($"A value for {nameof(containerId)} was not supplied.", nameof(containerId));
             }
 
-            var uriPath = Path.Combine(
+            var containerPath = Path.Combine(
                 containerId.ToString(),
                 propertyGuid.ToString(),
                 BlobConstants.TasksFolderName,
                 taskGuid.ToString(),
                 imageName);
 
-            var container = _blobClient.GetBlobContainerClient(uriPath);
-
-            try
-            {
-                await container.ExistsAsync();
-            }
-            catch (RequestFailedException)
-            {
-                // Blob does not yet exist
-                // Possibly due to no images being assigned to the property yet
-                return null;
-            }
-
-            return container.GenerateSasUri(
-                BlobContainerSasPermissions.Read,
-                DateTimeOffset.Now.AddHours(1));
+            return containerPath;
         }
     }
 }

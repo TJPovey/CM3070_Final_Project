@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, ViewChild, inject } from '@angular/core';
-import { BoundingSphere, Camera, Cartesian2, Cartesian3, Cartographic, Cesium3DTileset, CesiumWidget, CustomDataSource, DataSourceCollection, DataSourceDisplay, Entity, HeightReference, Ray, Scene, SceneMode, ScreenSpaceEventHandler, ScreenSpaceEventType, createGooglePhotorealistic3DTileset, createWorldTerrainAsync, sampleTerrainMostDetailed } from "@cesium/engine";
+import { BoundingSphere, Camera, Cartesian2, Cartesian3, Cartographic, Cesium3DTileset, CesiumWidget, CustomDataSource, DataSourceCollection, DataSourceDisplay, DistanceDisplayCondition, Entity, HeightReference, Ray, Scene, SceneMode, ScreenSpaceEventHandler, ScreenSpaceEventType, createGooglePhotorealistic3DTileset, createWorldTerrainAsync, sampleTerrainMostDetailed } from "@cesium/engine";
 import { IonButton, IonSelect, IonSelectOption, IonButtons, IonContent, IonFab, IonFabButton, IonFabList, IonHeader, IonIcon, IonImg, IonItem, IonLabel, IonList, IonModal, IonSearchbar, IonTitle, IonToolbar } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { alertSharp, chevronUpSharp, homeSharp } from 'ionicons/icons';
@@ -13,6 +13,9 @@ import { PropertyFacadeService } from 'src/app/facade/Property/property-facade.s
 import { IPropertyAssignment } from 'src/app/models/DTOs/User/IUserDTO';
 import { IPropertyDetail, IPropertyDto } from 'src/app/models/DTOs/Property/IPropertyDto';
 import { PropertyFormComponent } from 'src/app/components/property-form/property-form.component';
+import { CreateTaskFormComponent } from 'src/app/components/create-task-form/create-task-form.component';
+import { ITaskDetail } from 'src/app/models/DTOs/Tasks/ITaskDto';
+import { TaskFormComponent } from 'src/app/components/task-form/task-form.component';
 
 @Component({
   selector: 'app-explore',
@@ -41,7 +44,9 @@ import { PropertyFormComponent } from 'src/app/components/property-form/property
     IonSelect,
     IonSelectOption,
     CreatePropertyFormComponent,
-    PropertyFormComponent
+    CreateTaskFormComponent,
+    PropertyFormComponent,
+    TaskFormComponent
   ],
 })
 export class ExploreComponent implements AfterViewInit {
@@ -72,12 +77,19 @@ export class ExploreComponent implements AfterViewInit {
   private _pendingPropertySelection$ = new BehaviorSubject<boolean>(false);
   protected pendingPropertySelection$ = this._pendingPropertySelection$.asObservable();
 
+  private _pendingTaskSelection$ = new BehaviorSubject<boolean>(false);
+  protected pendingTaskSelection$ = this._pendingTaskSelection$.asObservable();
+
   protected propertyCollection$ = this._propertyFacadeService.propertyCollection$;
 
-  protected slectedProperty?: IPropertyAssignment;
+  private _selectedPropertyUpdated$ = new Subject<IPropertyDetail>();
+  protected selectedPropertyUpdated$ = this._selectedPropertyUpdated$.asObservable();
 
-  private _propertyDetailsSelected$ = new Subject<IPropertyDetail>();
-  protected propertyDetailsSelected$ = this._propertyDetailsSelected$.asObservable();
+  private _propertyFormDetailsSelected$ = new Subject<IPropertyDetail>();
+  protected propertyFormDetailsSelected$ = this._propertyFormDetailsSelected$.asObservable();
+
+  private _taskFormDetailsSelected$ = new Subject<ITaskDetail>();
+  protected taskFormDetailsSelected$ = this._taskFormDetailsSelected$.asObservable();
 
   constructor() {
     addIcons({homeSharp, alertSharp, chevronUpSharp});
@@ -141,14 +153,49 @@ export class ExploreComponent implements AfterViewInit {
                 id: property.property.id,
                 position: Cartesian3.fromDegrees(long, lat, height),
                 billboard: {
-                  image: './assets/billboard_icons/Feature_Pin.png',
+                  image: './assets/billboard_icons/Site_Pin.png',
                   heightReference: HeightReference.NONE,
                   pixelOffset: new Cartesian2(0, -5)
+                },
+                properties: { 
+                  type: 'property',
+                  ownerId: property.property.ownerId
                 }
               };
               this._dataSource.entities.add(entity);
             }
           });
+        });
+
+    this.selectedPropertyUpdated$
+      .subscribe(property => {
+        property.taskAssignments.forEach((task) => {
+          if (!this._dataSource.entities.getById(task.id) && task.location) {
+
+            const long = task.location.longitude;
+            const lat = task.location.latitude;
+            const height = task.location.elevation;
+  
+            const entity = {
+              id: task.id,
+              position: Cartesian3.fromDegrees(long, lat, height),
+              billboard: {
+                image: './assets/billboard_icons/Feature_Pin.png',
+                heightReference: HeightReference.NONE,
+                pixelOffset: new Cartesian2(0, -5),
+                distanceDisplayCondition: new DistanceDisplayCondition(0, 600.0)
+              },
+              properties: { 
+                type: 'task',
+                propertyId: property.id,
+                ownerId: property.ownerId.id
+              }
+            };
+
+            console.log(entity);
+            this._dataSource.entities.add(entity);
+          }
+        });
       });
   }
 
@@ -196,6 +243,21 @@ export class ExploreComponent implements AfterViewInit {
     this._pendingPropertySelection$.next(true);
   }
 
+  protected newTaskSelected() {
+    this._pendingTaskSelection$.next(true);
+  }
+
+  protected handleAddTaskCancelled() {
+    this._pendingTaskSelection$.next(false);
+    this._selectedPosition$.next(null);
+  }
+
+  protected handleTaskAdded(updatedProperty: IPropertyDetail) {
+    this._pendingTaskSelection$.next(false);
+    this._selectedPosition$.next(null);
+    this._selectedPropertyUpdated$.next({...updatedProperty});
+  }
+
   protected handleAddPropertyCancelled() {
     this._pendingPropertySelection$.next(false);
     this._selectedPosition$.next(null);
@@ -222,11 +284,13 @@ export class ExploreComponent implements AfterViewInit {
 
   protected handlePropertySelection(event: CustomEvent) {
     const property = event.detail.value as IPropertyAssignment;
-    this.slectedProperty = property;
+    
     const location = property.location;
     const position = Cartesian3.fromDegrees(location.longitude, location.latitude, location.elevation);
     const sphere = new BoundingSphere(position, 250);
     this._scene.camera.flyToBoundingSphere(sphere);
+    this._propertyFacadeService.getProperty(property.property.id, property.property.ownerId)
+      .subscribe(res => this._selectedPropertyUpdated$.next({...res}));
   }
 
   private clickEvent(scene: Scene) {
@@ -238,19 +302,33 @@ export class ExploreComponent implements AfterViewInit {
 
       if (pickResult?.id instanceof Entity) {
 
-        this._propertyFacadeService.getProperty(pickResult.id.id)
+        const entity = pickResult.id;
+
+        if (entity.properties.type.getValue(this._cesiumWidget.clock.currentTime) === "property") {
+          this._propertyFacadeService.getProperty(entity.id, entity.properties.ownerId.getValue(this._cesiumWidget.clock.currentTime))
           .subscribe(res => {
             const property = this._propertyFacadeService.getPropertyAssignment(pickResult.id.id);
-            this._propertyDetailsSelected$.next({...res});
+            this._propertyFormDetailsSelected$.next({...res});
             if (property) {
               this.propertySelection.value = property;
             }
           });
+        }
+
+        if (entity.properties.type.getValue(this._cesiumWidget.clock.currentTime) === "task") {
+          this._propertyFacadeService.getTask(
+            entity.id, 
+            entity.properties.propertyId.getValue(this._cesiumWidget.clock.currentTime), 
+            entity.properties.ownerId.getValue(this._cesiumWidget.clock.currentTime))
+          .subscribe(res => {
+            this._taskFormDetailsSelected$.next({...res});
+          });
+        }
 
         return;
       }
 
-      if (this._pendingPropertySelection$.getValue()) {
+      if (this._pendingPropertySelection$.getValue() || this._pendingTaskSelection$.getValue()) {
 
         const position = this.getWorldPickPosition(scene, event.position);
 

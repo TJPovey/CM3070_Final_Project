@@ -13,9 +13,9 @@ export class ProfileFacadeService {
 
   private _profileApi = inject(ProfileApiService);
   private _localStorageService = inject(LocalStorageService);
-
   private _currentProfile$ = new BehaviorSubject<IUserDetail | null>(null);
   public currentProfile$ = this._currentProfile$.asObservable();
+  public currentProfile!: IUserDetail;
 
   public registerUser(userPostDto: IUserPostDto): Observable<IUserDTO> {
     return this._profileApi.registerUser(userPostDto)
@@ -43,5 +43,8 @@ export class ProfileFacadeService {
 
   private setProfile(profile: IUserDetail | null) {
     this._currentProfile$.next(profile);
+    if (profile) {
+      this.currentProfile = profile;
+    }
   }
 }

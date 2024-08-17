@@ -18,19 +18,21 @@ namespace SnagIt.API.Core.Application.Features.SnagTask
     {
         public class Command : IRequest
         {
-            private Command(TaskPostDto data, Guid userId, string userName)
+            private Command(TaskPostDto data, Guid taskId, Guid userId, string userName)
             {
                 Data = data;
                 UserId = userId;
                 Username = userName;
+                TaskId = taskId;
             }
 
-            public static Command Create(TaskPostDto data, Guid userId, string userName)
-                => new Command(data, userId, userName);
+            public static Command Create(TaskPostDto data, Guid taskId, Guid userId, string userName)
+                => new Command(data, taskId, userId, userName);
 
             public TaskPostDto Data { get; }
 
             public Guid UserId { get; }
+            public Guid TaskId { get; }
 
             public string Username { get; }
         }
@@ -44,6 +46,9 @@ namespace SnagIt.API.Core.Application.Features.SnagTask
                     .SetValidator(new TaskPostDtoValidator());
 
                 RuleFor(query => query.UserId)
+                    .NotEmpty();
+
+                RuleFor(query => query.TaskId)
                     .NotEmpty();
 
                 RuleFor(query => query.Username)
@@ -184,7 +189,8 @@ namespace SnagIt.API.Core.Application.Features.SnagTask
                             request.Data.Location.Elevation);
 
                 var propertyId = PropertyId.Create(
-                    property.Id, 
+                    property.Id,
+                    property.OwnerId.Id,
                     property.PropertyDetail.PropertyName);
 
                 var assignedUser = UserId.Create(
@@ -206,7 +212,7 @@ namespace SnagIt.API.Core.Application.Features.SnagTask
                     propertyId,
                     assignedUser);
 
-                var taskEntity = SnagItTask.Create(taskDetail, property.OwnerId);
+                var taskEntity = SnagItTask.Create(request.TaskId, taskDetail, property.OwnerId);
 
                 await _propertyRepository.AddTask(
                     taskEntity, 

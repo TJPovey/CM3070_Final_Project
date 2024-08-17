@@ -1,0 +1,107 @@
+<ion-modal>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title slot="start">{{ taskDetail?.title }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button ion-button (click)="close()">Close</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    
+    <ion-content class="ion-padding">
+
+      <div class="content">
+        <ion-img *ngIf="taskDetail?.imageUri" [src]="taskDetail?.imageUri"></ion-img>
+      </div>
+
+      <ion-list [inset]="true" class="title">
+        <ion-item class="snag-title">
+          <ion-label> {{ taskDetail?.area }} </ion-label>
+        </ion-item>
+      </ion-list>
+
+      <ion-list [inset]="true">
+
+        <ion-item>
+          <ion-label>
+            <strong>Status</strong>
+            <div class="assignment-label">
+              <ion-note color="medium" class="ion-text-wrap">
+                {{ taskDetail?.open ? 'Open' : 'Closed' }}
+              </ion-note>
+            </div>
+          </ion-label>
+        </ion-item>
+
+        <ion-item>
+          <ion-label>
+            <strong>Assigned to</strong>
+            <div class="assignment-label">
+              <ion-note color="medium" class="ion-text-wrap">
+                {{ taskDetail?.assignedUser?.userName }}
+              </ion-note>
+            </div>
+          </ion-label>
+        </ion-item>
+
+        <ion-item>
+          <ion-label>
+            <strong>Description</strong>
+            <div class="assignment-label">
+              <ion-note color="medium" class="ion-text-wrap">
+                {{ taskDetail?.description }}
+              </ion-note>
+            </div>
+          </ion-label>
+        </ion-item>
+
+        <ion-item>
+          <ion-label>
+            <strong>Category</strong>
+            <div class="assignment-label">
+              <ion-note color="medium" class="ion-text-wrap">
+                {{ taskDetail?.category?.name }}
+              </ion-note>
+            </div>
+          </ion-label>
+        </ion-item>
+
+        <ion-item>
+          <ion-label>
+            <strong>Priority</strong>
+            <div class="assignment-label">
+              <ion-note color="medium" class="ion-text-wrap">
+                {{ taskDetail?.priority?.name }}
+              </ion-note>
+            </div>
+          </ion-label>
+        </ion-item>
+
+        <ion-item>
+          <ion-label>
+            <strong>Due date</strong>
+            <div class="assignment-label">
+              <ion-note color="medium" class="ion-text-wrap">
+                {{ taskDetail?.dueDate | date }}
+              </ion-note>
+            </div>
+          </ion-label>
+        </ion-item>
+
+        <ion-item>
+          <ion-label>
+            <strong>Estimate cost</strong>
+            <div class="assignment-label">
+              <ion-note color="medium" class="ion-text-wrap">
+                £{{ taskDetail?.estimatedCost }}
+              </ion-note>
+            </div>
+          </ion-label>
+        </ion-item>
+
+      </ion-list>
+
+    </ion-content>
+  </ng-template>
+</ion-modal>

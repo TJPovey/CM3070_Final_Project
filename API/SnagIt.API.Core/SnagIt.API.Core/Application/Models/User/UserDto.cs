@@ -35,7 +35,7 @@ namespace SnagIt.API.Core.Application.Models.User
         public class PropertyId
         {
             public Guid Id { get; set; }
-
+            public Guid OwnerId { get; set; }
             public string Name { get; set; }
         }
 
