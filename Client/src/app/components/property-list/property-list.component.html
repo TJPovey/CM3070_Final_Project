@@ -1,7 +1,13 @@
+<app-property-form [propertyDetail]="selectedProperty$ | async"></app-property-form>
+
 <ion-list>
 
   <ng-container *ngIf="(propertyCollection$ | async) as propertyCollection">
-    <ion-item class="item-container" *ngFor="let property of propertyCollection; trackBy:trackByPropertyId">
+    <ion-item 
+      [button]="true" 
+      class="item-container" 
+      *ngFor="let property of propertyCollection; trackBy:trackByPropertyId"
+      (click)="handlePropertySelected(property)">
       
         <ion-thumbnail>
           <img *ngIf="property.imageUri" [alt]="property.property.id" [src]="property.imageUri" />

@@ -1,0 +1,164 @@
+<ion-modal >
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Add Task to: {{ propertyDetail.propertyName }}</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    
+    <ion-content class="ion-padding">
+
+      <div class="center">
+        <form
+          *ngIf="formReady$ | async"
+          autocomplete="off"
+          class="generic-form" 
+          [formGroup]="taskCreateForm" 
+          (ngSubmit)="confirm()">
+      
+            <ion-item>
+              <ion-input 
+                tabindex="0"
+                expand="full"
+                placeholder="Task Name" 
+                ngDefaultControl 
+                type="text" 
+                formControlName="title">
+              </ion-input>
+            </ion-item>
+      
+            <ion-item>
+              <ion-input 
+                tabindex="0"
+                expand="full"
+                placeholder="Area" 
+                ngDefaultControl 
+                type="text" 
+                formControlName="area">
+              </ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-input 
+                tabindex="0"
+                expand="full"
+                placeholder="Description" 
+                ngDefaultControl 
+                type="text" 
+                formControlName="description">
+              </ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-input 
+                tabindex="0"
+                expand="full"
+                placeholder="Due Date" 
+                ngDefaultControl 
+                type="date" 
+                formControlName="dueDate">
+              </ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-input 
+                tabindex="0"
+                expand="full"
+                placeholder="Estiamted Cost" 
+                ngDefaultControl 
+                type="number" 
+                formControlName="estimatedCost">
+              </ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-select 
+                expand="full"
+                ngDefaultControl 
+                aria-label="category" 
+                placeholder="Select Category" 
+                formControlName="category">
+                <ion-select-option value="OK">OK</ion-select-option>
+                <ion-select-option value="OBS">OBS</ion-select-option>
+                <ion-select-option value="CAT1">CAT1</ion-select-option>
+                <ion-select-option value="CAT2">CAT2</ion-select-option>
+                <ion-select-option value="CAT3">CAT3</ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item>
+              <ion-select 
+                expand="full"
+                ngDefaultControl 
+                aria-label="priority" 
+                placeholder="Select Priority" 
+                formControlName="priority">
+                <ion-select-option value="Low">Low</ion-select-option>
+                <ion-select-option value="Medium">Medium</ion-select-option>
+                <ion-select-option value="High">High</ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item>
+              <ion-select 
+                expand="full"
+                ngDefaultControl 
+                aria-label="assigned to" 
+                placeholder="Assign User" 
+                formControlName="assignedTo">
+                <ion-select-option 
+                  *ngFor="let user of availableUsers" 
+                  [value]="user"> 
+                    {{ user.userName }} 
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item class="file-input">
+
+              <ion-input 
+                  #PlaceholderFileInput
+                  tabindex="0"
+                  expand="full"
+                  placeholder="Get Picture..." 
+                  ngDefaultControl 
+                  type="text"
+                  [disabled]="true">
+              </ion-input>
+              <ion-button 
+                tabindex="0" 
+                fill="outline"
+                color="dark"
+                (click)="selectPhoto()">
+                Picture
+              </ion-button>
+            </ion-item>
+
+            <div class="button-container">
+              <ion-button 
+                tabindex="0" 
+                fill="outline"
+                color="danger"
+                (click)="cancel()">
+                Cancel
+              </ion-button>
+
+              
+              <ion-button 
+                tabindex="0" 
+                fill="outline"
+                type="submit"
+                color="dark" 
+                [disabled]="taskCreateForm.invalid">
+                Create
+              </ion-button>
+            </div>
+          
+
+        </form>
+      </div>
+
+
+    </ion-content>
+  </ng-template>
+</ion-modal>

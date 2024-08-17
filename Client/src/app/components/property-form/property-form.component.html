@@ -1,3 +1,15 @@
+<app-task-form 
+  [taskDetail]="selectedTask$ | async">
+</app-task-form>
+
+<app-assign-user-form
+  *ngIf="assigningUser$ | async"
+  (assignUserCancelled)="handleAssignUserCancel()"
+  (assignedUserDetails)="handleAssignedUser($event)"
+  [propertyId]="propertyDetail!.id"
+  [ownerId]="propertyDetail!.ownerId!.id">
+</app-assign-user-form>
+
 <ion-modal>
   <ng-template>
     <ion-header>
@@ -8,24 +20,70 @@
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
-    
+
     <ion-content class="ion-padding">
 
-      <div class="center">
-
-        <ion-img *ngIf="propertyDetail?.imageUri" [src]="propertyDetail?.imageUri"></ion-img>
-
         <div class="content">
-          <ion-list [inset]="true">
-            <ion-item>
-              <ion-label> Report title: </ion-label>
-              <p> {{ propertyDetail?.reportTitle }} </p>
-            </ion-item>
-          </ion-list>
+          <ion-img *ngIf="propertyDetail?.imageUri" [src]="propertyDetail?.imageUri"></ion-img>
         </div>
 
-      </div>
+        <ion-list [inset]="true" class="title">
+          <ion-item class="snag-title">
+            <ion-label> {{ propertyDetail?.reportTitle }} </ion-label>
+          </ion-item>
+        </ion-list>
+      
+      <ion-list [inset]="true" class="assign-content">
+        <ion-item>
+          <ion-label> Assigned Tasks: </ion-label>
+        </ion-item>
+      </ion-list>
 
+      <ion-list [inset]="true">
+        <ion-item 
+          *ngFor="let task of propertyDetail?.taskAssignments"
+          [button]="true" 
+          (click)="handleTaskClick(task)"
+          detail="false">
+          <ion-label>
+            <strong>{{ task.name }}</strong>
+            <div class="assignment-label">
+              <p class="tag">PRIORITY:</p> 
+              <ion-note color="medium" class="ion-text-wrap">
+                {{ task.taskPriority.name }}
+              </ion-note>
+            </div>
+            <div class="assignment-label">
+              <p class="tag">CATEGORY:</p> 
+              <ion-note color="medium" class="ion-text-wrap">
+                {{ task.taskCategory.name }}
+              </ion-note>
+            </div>
+          </ion-label>
+          <div class="metadata" slot="end">
+            <ion-note color="medium"> {{ task.open ? 'Open' : 'Closed' }} </ion-note>
+          </div>
+        </ion-item>
+      </ion-list>
+
+      <ion-list [inset]="true" class="assign-content">
+        <ion-item [button]="true" (click)="handleAssignUserClick()">
+          <ion-label> Assigned Users: </ion-label>
+        </ion-item>
+      </ion-list>
+
+      <ion-list [inset]="true">
+        <ion-item 
+          *ngFor="let user of propertyDetail?.userAssignments"
+          detail="false">
+          <ion-label>
+            <strong>{{ user.userName }}</strong>
+          </ion-label>
+          <div class="metadata" slot="end">
+            <ion-note color="medium"> {{ user.role.name }} </ion-note>
+          </div>
+        </ion-item>
+      </ion-list>
 
     </ion-content>
   </ng-template>

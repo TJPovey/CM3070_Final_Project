@@ -7,6 +7,7 @@ using SnagIt.API.Core.Application.Features.Shared.Models;
 using SnagIt.API.Core.Application.Features.SnagTask;
 using SnagIt.API.Core.Application.Models.Property;
 using SnagIt.API.Core.Application.Models.Task;
+using SnagIt.API.Core.Domain.Aggregates.Shared;
 
 
 namespace SnagIt.API.Core.Application.Features.Property.API
@@ -95,7 +96,7 @@ namespace SnagIt.API.Core.Application.Features.Property.API
                     ApiVersion = "1.0",
                     Method = "task.image.put",
                     Data = null,
-                    Id = Guid.NewGuid(),
+                    Id = request.TaskId,
                     Error = error
                 };
             }

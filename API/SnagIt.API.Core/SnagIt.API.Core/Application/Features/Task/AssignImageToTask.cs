@@ -158,18 +158,18 @@ namespace SnagIt.API.Core.Application.Features.SnagTask
                 SnagItTask task,
                 CancellationToken cancellationToken)
             {
-                var imageUri = await _isolatedBlobClient.GetTaskImageReadToken(
+                var imagePath = _isolatedBlobClient.GetTaskImageContainerPath(
                     property.OwnerId.Id,
                     property.Id,
                     task.Id,
                     request.Data.ImageName);
 
-                if (imageUri is null) 
+                if (imagePath is null) 
                 {
-                    throw new ArgumentNullException($"{nameof(imageUri)} is null");
+                    throw new ArgumentNullException($"{nameof(imagePath)} is null");
                 }
 
-                task.AssignImageToTask(imageUri);
+                task.AssignImageToTask(imagePath);
 
                 await _propertyRepository.UpdateTask(task, request.UserId, cancellationToken);
             }

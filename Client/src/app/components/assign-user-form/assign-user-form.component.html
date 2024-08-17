@@ -2,7 +2,7 @@
   <ng-template>
     <ion-header>
       <ion-toolbar>
-        <ion-title>Add Property</ion-title>
+        <ion-title>Assign User</ion-title>
       </ion-toolbar>
     </ion-header>
     
@@ -12,49 +12,30 @@
         <form 
           autocomplete="off"
           class="generic-form" 
-          [formGroup]="propertyCreateForm" 
+          [formGroup]="userAssignForm" 
           (ngSubmit)="confirm()">
       
             <ion-item>
               <ion-input 
                 tabindex="0"
                 expand="full"
-                placeholder="Property Name" 
+                placeholder="Username" 
                 ngDefaultControl 
                 type="text" 
-                formControlName="propertyName">
+                formControlName="username">
               </ion-input>
             </ion-item>
       
             <ion-item>
-              <ion-input 
-                tabindex="0"
+              <ion-select 
                 expand="full"
-                placeholder="Report Title" 
                 ngDefaultControl 
-                type="text" 
-                formControlName="reportTitle">
-              </ion-input>
-            </ion-item>
-
-            <ion-item class="file-input">
-
-              <ion-input 
-                  #PlaceholderFileInput
-                  tabindex="0"
-                  expand="full"
-                  placeholder="Get Picture..." 
-                  ngDefaultControl 
-                  type="text"
-                  [disabled]="true">
-              </ion-input>
-              <ion-button 
-                tabindex="0" 
-                fill="outline"
-                color="dark"
-                (click)="selectPhoto()">
-                Picture
-              </ion-button>
+                aria-label="user role" 
+                placeholder="Select User Role" 
+                formControlName="role">
+                <ion-select-option value="Contributer">Contributer</ion-select-option>
+                <ion-select-option value="Reader">Reader</ion-select-option>
+              </ion-select>
             </ion-item>
 
             <div class="button-container">
@@ -66,16 +47,17 @@
                 Cancel
               </ion-button>
 
+              <!-- [disabled]="userAssignForm.invalid" -->
               <ion-button 
                 tabindex="0" 
                 fill="outline"
                 type="submit"
                 color="dark" 
-                [disabled]="propertyCreateForm.invalid">
-                Create
+                >
+                Add
               </ion-button>
             </div>
-          
+
         </form>
       </div>
 

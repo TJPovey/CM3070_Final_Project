@@ -54,6 +54,7 @@ namespace SnagIt.API.Core.Domain.EventHandlers
 
             var property = PropertyId.Create(
                 notification.SnagItProperty.Id,
+                notification.SnagItProperty.OwnerId.Id,
                 notification.SnagItProperty.PropertyDetail.PropertyName);
 
             var locationDetail = LocationDetail.FromDegrees(
@@ -89,6 +90,7 @@ namespace SnagIt.API.Core.Domain.EventHandlers
 
             var property = PropertyId.Create(
                 notification.SnagItProperty.Id,
+                notification.SnagItProperty.OwnerId.Id,
                 notification.SnagItProperty.PropertyDetail.PropertyName);
 
             var locationDetail = LocationDetail.FromDegrees(

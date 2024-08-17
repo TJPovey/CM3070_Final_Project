@@ -5,6 +5,7 @@ using SnagIt.API.Core.Infrastructure.Repositiories;
 using SnagIt.API.Core.Application.Models.Task;
 using SnagIt.API.Core.Application.Extensions.Mapping.Tasks;
 using SnagIt.API.Core.Domain.Aggregates.SnagItTask;
+using SnagIt.API.Core.Infrastructure.Repositiories.Blob.Clients;
 
 
 namespace SnagIt.API.Core.Application.Features.SnagTask
@@ -92,10 +93,12 @@ namespace SnagIt.API.Core.Application.Features.SnagTask
         public class Handler : IRequestHandler<Query, TaskDto.TaskDetailItem>
         {
             private readonly IPropertyRepository _propertyRepository;
+            private readonly IIsolatedBlobClient _isolatedBlobClient;
 
-            public Handler(IPropertyRepository propertyRepository)
+            public Handler(IPropertyRepository propertyRepository, IIsolatedBlobClient isolatedBlobClient)
             {
                 _propertyRepository = propertyRepository ?? throw new ArgumentNullException(nameof(propertyRepository));
+                _isolatedBlobClient = isolatedBlobClient ?? throw new ArgumentNullException(nameof(isolatedBlobClient));
             }
 
             public async Task<TaskDto.TaskDetailItem> Handle(Query request, CancellationToken cancellationToken)
@@ -113,7 +116,11 @@ namespace SnagIt.API.Core.Application.Features.SnagTask
                         $"for {nameof(GetTaskById)} with taskId: {request.TaskId}");
                 }
 
-                var result = data.ToTaskDetailItem();
+                var taskImageUri = data.TaskDetail.ImageUri is null ?
+                    null :
+                    await _isolatedBlobClient.GetReadToken(data.TaskDetail.ImageUri);
+
+                var result = data.ToTaskDetailItem(taskImageUri);
 
                 return result;
             }

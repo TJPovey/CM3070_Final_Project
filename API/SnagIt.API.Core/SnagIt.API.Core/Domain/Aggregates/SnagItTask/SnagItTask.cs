@@ -37,9 +37,9 @@ namespace SnagIt.API.Core.Domain.Aggregates.SnagItTask
             TaskDetail = taskDetail ?? throw new DomainException(nameof(taskDetail));
         }
 
-        public static SnagItTask Create(TaskDetail taskDetail, UserId ownerId)
+        public static SnagItTask Create(Guid taskId, TaskDetail taskDetail, UserId ownerId)
         {
-            var task = new SnagItTask(Guid.NewGuid(), taskDetail);
+            var task = new SnagItTask(taskId, taskDetail);
 
             var @event = TaskCreatedDomainEvent.Create(task, ownerId);
 
@@ -57,7 +57,7 @@ namespace SnagIt.API.Core.Domain.Aggregates.SnagItTask
             AddDomainEvent(@event);
         }
 
-        public void AssignImageToTask(Uri imagePath)
+        public void AssignImageToTask(string imagePath)
         {
             if (imagePath is null)
             {

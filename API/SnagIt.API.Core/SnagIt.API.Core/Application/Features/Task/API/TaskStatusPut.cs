@@ -95,7 +95,7 @@ namespace SnagIt.API.Core.Application.Features.Property.API
                     ApiVersion = "1.0",
                     Method = "task.status.put",
                     Data = null,
-                    Id = Guid.NewGuid(),
+                    Id = request.TaskId,
                     Error = error
                 };
             }
