@@ -23,7 +23,7 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   // continue url isn't to our API
-  if (!req.url.includes(environment.gatewayOrigin)){
+  if (!req.url.includes(`${environment.gateway}${environment.gatewayPort}`)){
     return next(req.clone());
   }
 

@@ -15,7 +15,7 @@ export class BackendService {
     private _rootUrl!: string
 
     constructor(private http: HttpClient) {
-        this._rootUrl = environment.gatewayOrigin
+        this._rootUrl = `${environment.gateway}${environment.gatewayPort}`;
     }
 
 
