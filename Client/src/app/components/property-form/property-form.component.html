@@ -14,9 +14,12 @@
   <ng-template>
     <ion-header>
       <ion-toolbar>
-        <ion-title slot="start">{{ propertyDetail?.propertyName }}</ion-title>
-        <ion-buttons slot="end">
+        <ion-buttons slot="start">
           <ion-button ion-button (click)="close()">Close</ion-button>
+        </ion-buttons>
+        <ion-title>{{ propertyDetail?.propertyName }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button ion-button (click)="export()">Export</ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>

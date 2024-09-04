@@ -35,9 +35,6 @@ export class PhotoCaptureService {
       const blob = this.dataURItoBlob(capturedPhoto.base64String, capturedPhoto.format);
       const fileName = `${GUID.GeneratGuid()}.${capturedPhoto.format}`;
 
-      console.log(capturedPhoto);
-      console.log(blob);
-
       this._photos.set(fileName, blob);
 
       return fileName;
