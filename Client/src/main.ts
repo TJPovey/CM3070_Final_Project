@@ -13,6 +13,7 @@ import { httpCacheInterceptor } from './app/interceptors/http-cache-interceptor'
 import { tokenInterceptor } from './app/interceptors/http-auth-interceptor';
 import { initializeApplication } from './app/services/authentication/app-initializer';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { DatePipe } from '@angular/common';
 
 
 defineCustomElements(window);
@@ -28,6 +29,7 @@ if (environment.production) {
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    { provide: DatePipe, useClass: DatePipe },
     provideIonicAngular({ mode: 'ios'}),
     provideRouter(
       routes, 

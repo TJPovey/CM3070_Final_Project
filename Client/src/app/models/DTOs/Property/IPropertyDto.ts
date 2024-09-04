@@ -14,7 +14,7 @@ export interface IPropertyDetail {
     location: ILocationDto;
     userAssignments: IUserAssignment[];
     taskAssignments: ITaskAssignment[];
-    ownerId: IUserRole;
+    ownerId: IOwnerId;
 }
 
 export interface ITaskAssignment {
@@ -40,6 +40,11 @@ export interface IUserAssignment {
     id: string;
     userName: string;
     role: IUserRole;
+}
+
+export interface IOwnerId {
+    id: string;
+    name: string;
 }
 
 export interface IUserRole {

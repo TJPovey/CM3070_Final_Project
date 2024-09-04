@@ -99,6 +99,17 @@ export class PropertyFacadeService {
     return propertyDetails;
   }
 
+  public async getPropertyImageBlob(propertyDetails: IPropertyDetail) {
+    if (propertyDetails.writeToken && propertyDetails.imageUri) {
+      const imageName = this.getImageNameFromUrl(propertyDetails.imageUri);
+      const blobServiceClient = new BlobServiceClient(propertyDetails.writeToken);
+      const blobClient = blobServiceClient.getContainerClient(propertyDetails.id);
+      const blockBlobClient = blobClient.getBlockBlobClient(`images/${imageName}`);
+      return await blockBlobClient.download(0);
+    }
+    return;
+  }
+
   public getTask(taskId: string, propertyId: string, ownerId: string): Observable<ITaskDetail> {
     return this._propertyAPIService.getTask(taskId, propertyId, ownerId)
       .pipe(
@@ -147,5 +158,24 @@ export class PropertyFacadeService {
     }
 
     return taskDetails;
+  }
+
+  public async getTaskImageBlob(writeToken: string, taskDetails: ITaskDetail) {
+    if (taskDetails.imageUri) {
+      const imageName = this.getImageNameFromUrl(taskDetails.imageUri);
+      const blobServiceClient = new BlobServiceClient(writeToken);
+      const blobClient = blobServiceClient.getContainerClient(taskDetails.propertyId);
+      const blockBlobClient = blobClient.getBlockBlobClient(`tasks/${taskDetails.id}/${imageName}`);
+      return await blockBlobClient.download(0);
+    }
+    return;
+  }
+
+  private getImageNameFromUrl(url: string) {
+    const urlObj = new URL(url);
+    const pathname = urlObj.pathname;
+    const pathSegments = pathname.split('/');
+    const imageName = pathSegments[pathSegments.length - 1];
+    return imageName;
   }
 }
