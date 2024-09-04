@@ -192,7 +192,6 @@ export class ExploreComponent implements AfterViewInit {
               }
             };
 
-            console.log(entity);
             this._dataSource.entities.add(entity);
           }
         });
@@ -339,8 +338,6 @@ export class ExploreComponent implements AfterViewInit {
         }
       }
 
-
-
     }, ScreenSpaceEventType.LEFT_CLICK)
   }
 
@@ -356,7 +353,7 @@ export class ExploreComponent implements AfterViewInit {
     })
   }
 
-  /**
+/**
  * Gets the Cartesian3 world position at the input mouse position at either the
  * @param {Scene} scene The scene
  * @param {Cartesian2} mousePosition The mouse position

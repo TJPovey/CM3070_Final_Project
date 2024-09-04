@@ -29,7 +29,6 @@ export class ProfileFacadeService {
     return this._profileApi.login(tokenDto)
       .pipe(
         take(1),
-        tap(res => console.log(res)),
         tap(tokens => this._localStorageService.setItem("accessTokenDetails", tokens.data?.item)),
         switchMap(() => this.getProfile()));
   }
