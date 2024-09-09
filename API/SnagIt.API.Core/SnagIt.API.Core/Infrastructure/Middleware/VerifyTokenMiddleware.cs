@@ -1,10 +1,8 @@
-﻿using System.Threading.Tasks;
-using Microsoft.Azure.Functions.Worker.Middleware;
+﻿using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Azure.Functions.Worker;
 using SnagIt.API.Core.Infrastructure.Extensions;
 using SnagIt.API.Core.Infrastructure.Services;
 using System.Net;
-using SnagIt.API.Core.Application.Exceptions;
 using SnagIt.API.Core.Application.Features.Shared.Models;
 
 namespace SnagIt.API.Core.Infrastructure.Middleware

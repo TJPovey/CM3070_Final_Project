@@ -34,7 +34,6 @@ namespace SnagIt.API.Core.Domain.EventHandlers
             await _isolatedBlobClient.CreateContainerIfNotExists(notification.SnagItUser.Id);
         }
 
-
         public async Task Handle(PropertyCreatedDomainEvent notification, CancellationToken cancellationToken)
         {
             if (notification is null)
@@ -69,7 +68,6 @@ namespace SnagIt.API.Core.Domain.EventHandlers
 
             await _userRepository.UpdateUser(targetUser, cancellationToken);
         }
-
 
         public async Task Handle(PropertyUserAssignedDomainEvent notification, CancellationToken cancellationToken)
         {

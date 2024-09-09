@@ -112,7 +112,7 @@ export class ExploreComponent implements AfterViewInit {
 
     this.clickEvent(this._cesiumWidget.scene);
 
-    this._scene = this._cesiumWidget.scene
+    this._scene = this._cesiumWidget.scene;
 
     this._dataSourceDisplay = new DataSourceDisplay({
       scene: this._scene,

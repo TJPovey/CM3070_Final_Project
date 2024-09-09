@@ -8,8 +8,6 @@ namespace SnagIt.API.Core.Infrastructure.Repositiories.Cosmos.Clients
     {
         Container GetManagementContainer();
 
-        Container GetSnagItUserContainer(Guid userId);
-
         Task Create<T>(T data, string partitionKey, CancellationToken cancellationToken = default)
             where T : class;
 
@@ -38,16 +36,6 @@ namespace SnagIt.API.Core.Infrastructure.Repositiories.Cosmos.Clients
 
             return container;
         }
-
-        public Container GetSnagItUserContainer(Guid userId)
-        {
-            var container = _cosmosClient.GetContainer(
-                CosmosConstants.SharedDatabaseId,
-                userId.ToString());
-
-            return container;
-        }
-
 
         public async Task Create<T>(T data, string partitionKey, CancellationToken cancellationToken = default)
             where T : class
