@@ -9,7 +9,8 @@ export const httpCacheInterceptor: HttpInterceptorFn = (req, next) => {
     const cacheStorage = inject(HttpCacheStorageService);
 
     // changes have been made to the db, delete the cache
-    // if this app ever gets bigger - we should have seperate instance of this interceptor to only remove relevant caches.
+    // if this app ever gets bigger - we should have seperate instances 
+    // of this interceptor to only remove relevant caches.
     if (isModifyRequest(req)) {
       cacheStorage.removeAll();
       return next(req);
@@ -28,6 +29,7 @@ export const httpCacheInterceptor: HttpInterceptorFn = (req, next) => {
       return of(cachedResponse.clone());
     }
 
+    // cache the response
     return next(req).pipe(
       filter(event => event instanceof HttpResponse),
       tap(res => cacheStorage.setItem(urlWithSortedQueries, (res as HttpResponse<unknown>).clone()))

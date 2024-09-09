@@ -96,7 +96,7 @@ namespace SnagIt.API.Core.Application.Features.User
                 var user = await _userRepository.GetAllUsersWithUsername(request.Data.Username, cancellationToken);
                 if (user?.Count > 0)
                 {
-                    throw new ArgumentException($"A {nameof(Domain.Aggregates.User.SnagItUser)} entity already exists.");
+                    throw new ArgumentException($"A {nameof(SnagItUser)} entity already exists.");
                 }
             }
 

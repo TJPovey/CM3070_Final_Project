@@ -1,12 +1,12 @@
-import { inject, Injectable } from '@angular/core';
-import { BackendService } from '../base/backend.service';
 import { HttpParams } from '@angular/common/http';
-import { Observable, shareReplay } from 'rxjs';
-import { IUserDTO } from 'src/app/models/DTOs/User/IUserDTO';
-import { Endpoints } from '../api-endpoints';
-import { IUserPostDto } from 'src/app/models/DTOs/User/IUserPostDto';
-import { ITokenPostDto } from 'src/app/models/DTOs/User/ITokenPostDto';
+import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { ITokenDto } from 'src/app/models/DTOs/User/ITokenDto';
+import { ITokenPostDto } from 'src/app/models/DTOs/User/ITokenPostDto';
+import { IUserDTO } from 'src/app/models/DTOs/User/IUserDTO';
+import { IUserPostDto } from 'src/app/models/DTOs/User/IUserPostDto';
+import { Endpoints } from '../api-endpoints';
+import { BackendService } from '../base/backend.service';
 
 @Injectable({
   providedIn: 'root'
@@ -27,3 +27,4 @@ export class ProfileApiService {
     return this._backendService.get(Endpoints.API_Profile_Get, params, true);
   }
 }
+

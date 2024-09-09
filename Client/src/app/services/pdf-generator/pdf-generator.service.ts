@@ -64,7 +64,7 @@ export class PdfGeneratorService {
     });
     
     
-    // Iterate over each task and create a section for it
+    // Iterate over each task and create a page for it
     tasks.forEach((task) => {
 
       doc.addPage();

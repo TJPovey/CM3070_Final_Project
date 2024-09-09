@@ -66,7 +66,11 @@ namespace SnagIt.API.Core.Infrastructure.Repositiories.Cosmos.Clients
             return streamPayload;
         }
 
-        public async Task CreateItem<T>(Container container, T data, string partitionKey, CancellationToken cancellationToken = default)
+        public async Task CreateItem<T>(
+            Container container, 
+            T data, 
+            string partitionKey, 
+            CancellationToken cancellationToken = default)
             where T : class
         {
             using (var stream = ToStream(data))
@@ -83,7 +87,12 @@ namespace SnagIt.API.Core.Infrastructure.Repositiories.Cosmos.Clients
             }
         }
 
-        public async Task ReplaceItem<T>(Container container, T data, string id, string partitionKey, CancellationToken cancellationToken = default)
+        public async Task ReplaceItem<T>(
+            Container container, 
+            T data, 
+            string id, 
+            string partitionKey, 
+            CancellationToken cancellationToken = default)
             where T : class
         {
             using (var stream = ToStream(data))
@@ -100,7 +109,11 @@ namespace SnagIt.API.Core.Infrastructure.Repositiories.Cosmos.Clients
             }
         }
 
-        public async Task<T> GetItem<T>(Container container, string id, string partitionKey, CancellationToken cancellationToken = default)
+        public async Task<T> GetItem<T>(
+            Container container, 
+            string id, 
+            string partitionKey, 
+            CancellationToken cancellationToken = default)
             where T : class
         {
             using (var responseMessage = await container.ReadItemStreamAsync(
@@ -129,7 +142,10 @@ namespace SnagIt.API.Core.Infrastructure.Repositiories.Cosmos.Clients
             }
         }
 
-        public async Task<List<T>> GetItems<T>(Container container, QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
+        public async Task<List<T>> GetItems<T>(
+            Container container, 
+            QueryDefinition queryDefinition, 
+            CancellationToken cancellationToken = default)
             where T : class
         {
             var itemList = new List<T>();
